@@ -1,0 +1,1 @@
+ # Admin functions (ban users, manage trivia)  
