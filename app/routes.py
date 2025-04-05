@@ -1,17 +1,27 @@
 # app/routes.py
-from flask import Blueprint, current_app
+from flask import render_template, redirect, url_for, request, flash
+from flask_login import login_user, logout_user, login_required, current_user
+from app.models import User
+from app import db, login_manager
+from app.forms import LoginForm  # You'll create this form
 
-bp = Blueprint('routes', __name__)
+@bp.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and user.check_password(form.password.data):
+            if user.is_banned:
+                flash('Your account has been banned.')
+                return redirect(url_for('routes.login'))
+            login_user(user)
+            return redirect(url_for('routes.dashboard'))
+        else:
+            flash('Invalid username or password.')
+    return render_template('login.html', form=form)
 
-@bp.route('/')
-def index():
-    return 'Welcome :)'
-
-@bp.route('/test-db')
-def test_db():
-    try:
-        db = current_app.extensions['sqlalchemy'].db
-        result = db.session.execute('SELECT 1').scalar()
-        return f'Database connection test successful. Result: {result}'
-    except Exception as e:
-        return f'Database connection failed: {str(e)}'
+@bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('routes.login'))
