@@ -1,0 +1,16 @@
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        <label for="username">Username</label>
+        {{ form.username }}
+    </div>
+    <div>
+        <label for="password">Password</label>
+        {{ form.password }}
+    </div>
+    <div>
+        <label for="confirm_password">Confirm Password</label>
+        {{ form.confirm_password }}
+    </div>
+    <button type="submit">Register</button>
+</form>
