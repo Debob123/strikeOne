@@ -3,7 +3,7 @@
 class Config:
     # Database configuration
     MYSQL = {
-        'host': 'localhost',
+        'location': 'localhost',
         'user': 'web',
         'password': 'mypass',
         'database': 'StrikeOne'
@@ -11,7 +11,7 @@ class Config:
 
     # SQLAlchemy configuration
     SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{MYSQL['user']}:{MYSQL['password']}@{MYSQL['host']}/{MYSQL['database']}"
+        f"mysql+pymysql://{MYSQL['user']}:{MYSQL['password']}@{MYSQL['location']}/{MYSQL['database']}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # Disable Flask-SQLAlchemy modification tracking
 
