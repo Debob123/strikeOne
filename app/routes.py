@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash, Blueprint
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models import User
-from app import db, login_manager
+from app import db, login_manager, bcrypt
 from app.forms import LoginForm, RegistrationForm  # created form
 from app.models import User
 bp = Blueprint('routes', __name__)
@@ -16,9 +16,6 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
-            if user.is_banned:
-                flash('Your account has been banned.')
-                return redirect(url_for('routes.login'))
             login_user(user)
             return redirect(url_for('routes.homepage'))  # Redirect to homepage after login
         else:
@@ -33,18 +30,20 @@ def register():
         existing_user = User.query.filter_by(username=form.username.data).first()
         if existing_user:
             flash('Username is already taken. Please choose a different one.')
-            return redirect(url_for('routes.register'))
-
-        # Create a new user
+            return redirect(url_for('routes.register'))  # Correct blueprint reference
+        
+        # Create the user and hash the password
         new_user = User(username=form.username.data)
         new_user.set_password(form.password.data)
+
         db.session.add(new_user)
         db.session.commit()
 
-        flash('Your account has been created! You can now log in.')
-        return redirect(url_for('routes.login'))
+        flash("Registration successful!", 'success')
+        return redirect(url_for('routes.login'))  # Correct blueprint reference
 
     return render_template('register.html', form=form)
+
 
 @bp.route('/logout')
 @login_required

@@ -44,12 +44,14 @@ def create_app():
     # Configure the database URI
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://web:mypass@localhost/StrikeOne'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'super_secret_key'
 
     # Initialize the database with the app
     db.init_app(app)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
 
-    # Create tables and insert the admin account
-    # create_tables_and_admin(app)
+    login_manager.login_view = 'routes.login'
 
     from app.routes import bp as routes_bp
     app.register_blueprint(routes_bp)
@@ -68,18 +70,16 @@ def create_tables_and_admin(app):
         admin_account = User.query.filter_by(username='admin').first()
 
         if admin_account is None:
-            # If the admin account doesn't exist, create it
-            hashed_password = generate_password_hash('adminpassword', method='pbkdf2:sha256')
-            new_admin = User(
-                username='admin',
-                password=hashed_password,
-                is_admin=True
+             # If the admin account doesn't exist, create it
+             hashed_password = bcrypt.generate_password_hash('adminpassword').decode('utf-8')  # Use bcrypt here
+             new_admin = User(
+                  username='admin',
+                  password=hashed_password,
+                  is_admin=True
             )
-
-            # Add the new admin account to the database
-            db.session.add(new_admin)
-            db.session.commit()
-            print("Admin account created.")
+             db.session.add(new_admin)
+             db.session.commit()
+             print("Admin account created.")
         else:
             print("Admin account already exists.")
 
