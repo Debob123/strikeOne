@@ -1,50 +1,90 @@
-# app/__init__.py
-import sys
-import os
+import pymysql
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from config import Config
-from app.routes import bp as routes_bp
-
+from werkzeug.security import generate_password_hash
 # Initialize libraries
 db = SQLAlchemy()
 migrate = Migrate()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 
+def create_database():
+    """Ensure the 'StrikeOne' database exists before Flask app starts."""
+    try:
+        # Connect to MySQL without specifying the database
+        connection = pymysql.connect(
+            host='localhost',
+            user='web',
+            password='mypass'
+        )
+        
+        print("Connection successful!")
+
+        # Create the 'StrikeOne' database if it doesn't exist
+        with connection.cursor() as cursor:
+            cursor.execute("CREATE DATABASE IF NOT EXISTS StrikeOne")
+            print("Database 'StrikeOne' created or already exists.")
+
+        # Close the connection
+        connection.close()
+
+    except pymysql.MySQLError as e:
+        print(f"Error connecting to MySQL: {e}")
+
 def create_app():
+    """Create and configure the Flask app."""
+    # First ensure the database exists
+    create_database()
+
     app = Flask(__name__)
 
-     # Print BEFORE setting config from class
-    print("Before config:", app.config.get('SQLALCHEMY_DATABASE_URI'))
+    # Configure the database URI
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://web:mypass@localhost/StrikeOne'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'super_secret_key'
 
-    app.config.from_object(Config)  # Loads MYSQL dict and SECRET_KEY, etc.
-
-    # Print AFTER
-    print("After config:", app.config.get('SQLALCHEMY_DATABASE_URI'))
-
-    # Optional: Print full MYSQL dict
-    print("MYSQL Settings:", Config.MYSQL)
-    
-    # Database configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = (
-        f"mysql+pymysql://{Config.MYSQL['user']}:{Config.MYSQL['password']}@{Config.MYSQL['location']}/{Config.MYSQL['database']}"
-    )
-
-    print("Final DB URI:", app.config['SQLALCHEMY_DATABASE_URI'])
-
-    app.config.from_object(Config)
-    
-    # Initialize extensions
+    # Initialize the database with the app
     db.init_app(app)
-    migrate.init_app(app, db)
     bcrypt.init_app(app)
     login_manager.init_app(app)
 
-    # Import and register blueprint
+    login_manager.login_view = 'routes.login'
+
+    from app.routes import bp as routes_bp
     app.register_blueprint(routes_bp)
 
     return app
+
+def create_tables_and_admin(app):
+
+    from app.models import User
+    """Create tables and insert the admin account if it doesn't already exist."""
+    with app.app_context():
+        # Create the tables based on existing models if they don't exist
+        db.create_all()
+
+        # Check if the admin account already exists
+        admin_account = User.query.filter_by(username='admin').first()
+
+        if admin_account is None:
+             # If the admin account doesn't exist, create it
+             hashed_password = bcrypt.generate_password_hash('adminpassword').decode('utf-8')  # Use bcrypt here
+             new_admin = User(
+                  username='admin',
+                  password=hashed_password,
+                  is_admin=True
+            )
+             db.session.add(new_admin)
+             db.session.commit()
+             print("Admin account created.")
+        else:
+            print("Admin account already exists.")
+
+# User loader for Flask-Login
+@login_manager.user_loader
+def load_user(user_id):
+    from app.models import User
+    return User.query.get(int(user_id))
