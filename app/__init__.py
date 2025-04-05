@@ -49,7 +49,7 @@ def create_app():
     db.init_app(app)
 
     # Create tables and insert the admin account
-    create_tables_and_admin(app)
+    # create_tables_and_admin(app)
 
     from app.routes import bp as routes_bp
     app.register_blueprint(routes_bp)
