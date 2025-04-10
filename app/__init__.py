@@ -34,6 +34,58 @@ def create_database():
     except pymysql.MySQLError as e:
         print(f"Error connecting to MySQL: {e}")
 
+def copy_baseball_tables():
+    """Copy all tables and data from 'baseball' into 'StrikeOne' if they don't exist."""
+    try:
+        source_conn = pymysql.connect(host='localhost', user='web', password='mypass', database='baseball')
+        target_conn = pymysql.connect(host='localhost', user='web', password='mypass', database='StrikeOne')
+
+        with source_conn.cursor() as src_cursor, target_conn.cursor() as tgt_cursor:
+            # Disable foreign key checks temporarily
+            tgt_cursor.execute("SET foreign_key_checks = 0")
+
+            src_cursor.execute("SHOW TABLES")
+            tables = [row[0] for row in src_cursor.fetchall()]
+
+            for table in tables:
+                # Check if the table already exists in StrikeOne
+                tgt_cursor.execute(f"SHOW TABLES LIKE '{table}'")
+                exists = tgt_cursor.fetchone()
+                if not exists:
+                    print(f"Copying table: {table}")
+                    # Create the table structure
+                    src_cursor.execute(f"SHOW CREATE TABLE {table}")
+                    create_stmt = src_cursor.fetchone()[1]
+                    tgt_cursor.execute(create_stmt)
+
+                    # Copy over the data
+                    src_cursor.execute(f"SELECT * FROM {table}")
+                    rows = src_cursor.fetchall()
+
+                    if rows:
+                        src_cursor.execute(f"SHOW COLUMNS FROM {table}")
+                        columns = [col[0] for col in src_cursor.fetchall()]
+                        columns_str = ", ".join(f"`{col}`" for col in columns)
+                        values_placeholder = ", ".join(["%s"] * len(columns))
+                        insert_query = f"INSERT INTO {table} ({columns_str}) VALUES ({values_placeholder})"
+                        tgt_cursor.executemany(insert_query, rows)
+                        print(f"Inserted {len(rows)} rows into {table}")
+
+            # Re-enable foreign key checks
+            tgt_cursor.execute("SET foreign_key_checks = 1")
+        
+        target_conn.commit()
+        print("Baseball tables copied into StrikeOne!")
+
+    except pymysql.MySQLError as e:
+        print(f"Error during baseball DB sync: {e}")
+
+    finally:
+        source_conn.close()
+        target_conn.close()
+
+
+
 def create_app():
     """Create and configure the Flask app."""
     # First ensure the database exists
@@ -83,6 +135,9 @@ def create_tables_and_admin(app):
              print("Admin account created.")
         else:
             print("Admin account already exists.")
+        
+        print ("copying baseball tables")
+        copy_baseball_tables()
 
 # User loader for Flask-Login
 @login_manager.user_loader
