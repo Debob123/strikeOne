@@ -75,7 +75,8 @@ def create_tables_and_admin(app):
              new_admin = User(
                   username='admin',
                   password=hashed_password,
-                  is_admin=True
+                  is_admin=True,
+                  is_banned=False
             )
              db.session.add(new_admin)
              db.session.commit()

@@ -14,7 +14,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)  # or False based on your use case
     is_authenticated = db.Column(db.Boolean, default=True)  # Default to True if authenticated
     is_anonymous = db.Column(db.Boolean, default=False)  # Default to False for non-anonymous users
-    
+    is_banned = db.Column(db.Boolean, default=False, nullable=False)
     
     def get_id(self):
         return str(self.LoginID) 

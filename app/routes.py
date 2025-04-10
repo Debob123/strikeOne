@@ -16,11 +16,15 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
+            if user.is_banned:
+                flash('Your account has been banned. Contact an administrator.', 'danger')
+                return redirect(url_for('routes.login'))
             login_user(user)
             return redirect(url_for('routes.homepage'))  # Redirect to homepage after login
         else:
-            flash('Invalid username or password.')
+            flash('Invalid username or password.', 'danger')
     return render_template('login.html', form=form)
+
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
