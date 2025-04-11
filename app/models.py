@@ -28,3 +28,19 @@ class User(db.Model):
     def check_password(self, password):
         """Check if the provided password matches the stored hash."""
         return bcrypt.check_password_hash(self.password, password)
+    
+
+# --------------------------
+# No-Hitter Model
+# --------------------------
+class NoHitter(db.Model):
+    __tablename__ = 'nohitter'
+
+    id = db.Column(db.Integer, primary_key=True)
+    winning_team = db.Column(db.String(64), nullable=False)
+    losing_team = db.Column(db.String(64), nullable=False)
+    winning_pitchers = db.Column(db.Integer, nullable=False)
+    losing_pitchers = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f'<NoHitter {self.id}: {self.winning_team} vs {self.losing_team}>'

@@ -112,7 +112,7 @@ def create_app():
 
 def create_tables_and_admin(app):
 
-    from app.models import User
+    from app.models import User, NoHitter
     """Create tables and insert the admin account if it doesn't already exist."""
     with app.app_context():
         # Create the tables based on existing models if they don't exist
