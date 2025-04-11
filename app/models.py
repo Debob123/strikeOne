@@ -37,10 +37,28 @@ class NoHitter(db.Model):
     __tablename__ = 'nohitter'
 
     id = db.Column(db.Integer, primary_key=True)
-    winning_team = db.Column(db.String(64), nullable=False)
-    losing_team = db.Column(db.String(64), nullable=False)
-    winning_pitchers = db.Column(db.Integer, nullable=False)
-    losing_pitchers = db.Column(db.Integer, nullable=False)
+    gid = db.Column(db.String(16), nullable=False)           # Game ID
+    pitcher_id = db.Column(db.String(16), nullable=False)
+    team = db.Column(db.String(8), nullable=False)
+    opp = db.Column(db.String(8), nullable=False)
+    date = db.Column(db.String(16), nullable=False)
+    site = db.Column(db.String(16), nullable=True)
+    vishome = db.Column(db.String(1), nullable=False)        # v = visitor, h = home
+
+    p_ipouts = db.Column(db.Integer, nullable=False)         # Pitching outs recorded
+    p_bfp = db.Column(db.Integer, nullable=True)             # Batters faced
+    p_h = db.Column(db.Integer, nullable=False)              # Hits allowed (0 in a no-hitter)
+    p_hr = db.Column(db.Integer, nullable=True)              # Home runs allowed
+    p_r = db.Column(db.Integer, nullable=True)               # Runs allowed
+    p_er = db.Column(db.Integer, nullable=True)              # Earned runs
+    p_w = db.Column(db.Integer, nullable=True)               # Walks
+    p_k = db.Column(db.Integer, nullable=True)               # Strikeouts
+    p_hbp = db.Column(db.Integer, nullable=True)             # Hit by pitch
+    p_wp = db.Column(db.Integer, nullable=True)              # Wild pitches
+    p_gs = db.Column(db.Integer, nullable=True)              # Game started
+    p_cg = db.Column(db.Integer, nullable=True)              # Complete game
+
+    team_win = db.Column(db.Boolean, nullable=False)         # True if pitcher's team won
 
     def __repr__(self):
-        return f'<NoHitter {self.id}: {self.winning_team} vs {self.losing_team}>'
+        return f'<NoHitter {self.id}: {self.pitcher_id} ({self.team}) vs {self.opp} on {self.date}>'
