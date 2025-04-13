@@ -1,8 +1,13 @@
 from flask import render_template, redirect, url_for, request, flash, Blueprint
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, login_manager, bcrypt
+<<<<<<< HEAD
 from app.models import User, NoHitter
 from app.forms import LoginForm, RegistrationForm
+=======
+from app.forms import LoginForm, RegistrationForm  # created form
+from app.models import User
+>>>>>>> 7b1ad5a0359ae23e6cef613a4675708b8cf69eb1
 
 bp = Blueprint('routes', __name__)
 
