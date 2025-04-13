@@ -4,6 +4,7 @@ from app.models import User
 from app import db, login_manager, bcrypt
 from app.forms import LoginForm, RegistrationForm  # created form
 from app.models import User
+
 bp = Blueprint('routes', __name__)
 
 @bp.route('/')
