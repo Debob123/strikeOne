@@ -1,8 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash, Blueprint
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, login_manager, bcrypt
-from app.models import User, NoHitter  # include NoHitter here
-
+from app.models import User, NoHitter
 from app.forms import LoginForm, RegistrationForm
 
 bp = Blueprint('routes', __name__)
@@ -10,7 +9,8 @@ bp = Blueprint('routes', __name__)
 # Home page
 @bp.route('/')
 def homepage():
-    return render_template('homepage.html')
+    return render_template('dashboard.html')
+
 
 
 # Login route
@@ -24,7 +24,7 @@ def login():
                 flash('Your account has been banned. Contact an administrator.', 'danger')
                 return redirect(url_for('routes.login'))
             login_user(user)
-            return redirect(url_for('routes.homepage'))
+            return redirect(url_for('routes.dashboard'))  # Redirect to dashboard after login
         else:
             flash('Invalid username or password.', 'danger')
     return render_template('login.html', form=form)
@@ -60,10 +60,17 @@ def logout():
     return redirect(url_for('routes.login'))
 
 
+# Dashboard (optional landing page after login)
+@bp.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
+
+
 # No-Hitter dropdown using teams from raw SQL
 @bp.route('/nohitters')
 def nohitter_dropdown():
-    result = db.session.execute('SELECT DISTINCT name FROM teams ORDER BY name')
+    result = db.session.execute('SELECT DISTINCT team_name FROM teams ORDER BY team_name')
     teams = [row[0] for row in result]
     return render_template('nohitters_dropdown.html', teams=teams)
 
