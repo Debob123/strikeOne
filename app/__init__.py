@@ -143,7 +143,7 @@ def create_tables_and_admin(app):
 
         # Import nohitters CSV if NoHitter table is empty
         if NoHitter.query.count() == 0:
-            csv_path = os.path.join(os.path.dirname(__file__), 'static', 'pitching.csv')
+            csv_path = os.path.join(os.path.dirname(__file__), 'static', 'NoHitters-Pitching.csv')
             import_nohitters_from_csv(csv_path)
         else:
             print("NoHitter table already contains data.")
