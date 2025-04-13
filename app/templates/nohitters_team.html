@@ -1,0 +1,43 @@
+<!-- templates/nohitters_team.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>No-Hitters for {{ team }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>No-Hitters for {{ team }}</h1>
+    {% if nohitters %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pitcher ID</th>
+                    <th>Opponent</th>
+                    <th>Site</th>
+                    <th>IP Outs</th>
+                    <th>Strikeouts</th>
+                    <th>Year</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nh in nohitters %}
+                    <tr>
+                        <td>{{ nh.date }}</td>
+                        <td>{{ nh.pitcher_id }}</td>
+                        <td>{{ nh.opp }}</td>
+                        <td>{{ nh.site or 'N/A' }}</td>
+                        <td>{{ nh.p_ipouts }}</td>
+                        <td>{{ nh.p_k }}</td>
+                        <td>{{ nh.yearID }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No no-hitters found for this team.</p>
+    {% endif %}
+</body>
+</html>

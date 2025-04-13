@@ -1,0 +1,21 @@
+<!-- templates/nohitters_dropdown.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>No-Hitters by Team</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>Select a Team to View No-Hitters</h1>
+    <div class="dropdown">
+        <button class="dropbtn">No-Hitters</button>
+        <div class="dropdown-content">
+            {% for team in teams %}
+                <a href="{{ url_for('routes.show_nohitters', team=team) }}">{{ team }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
