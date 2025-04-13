@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from app.csv_import import import_nohitters_from_csv
+import os
 from werkzeug.security import generate_password_hash
 # Initialize libraries
 db = SQLAlchemy()
@@ -138,6 +140,13 @@ def create_tables_and_admin(app):
         
         print ("copying baseball tables")
         copy_baseball_tables()
+
+        # Import nohitters CSV if NoHitter table is empty
+        if NoHitter.query.count() == 0:
+            csv_path = os.path.join(os.path.dirname(__file__), 'static', 'pitching.csv')
+            import_nohitters_from_csv(csv_path)
+        else:
+            print("NoHitter table already contains data.")
 
 # User loader for Flask-Login
 @login_manager.user_loader
