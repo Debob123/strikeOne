@@ -38,6 +38,7 @@ def import_nohitters_from_csv(csv_path=os.path.join(basedir, 'static', 'NoHitter
                         p_gs=int(row['p_gs']) if row['p_gs'] else 0,
                         p_cg=int(row['p_cg']) if row['p_cg'] else 0,
                         team_win=str_to_bool(row['win']),
+                          yearID=int(row['date'][:4])  
                     )
 
                     db.session.add(nohitter)

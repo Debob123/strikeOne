@@ -57,8 +57,8 @@ class NoHitter(db.Model):
     p_wp = db.Column(db.Integer, nullable=True)              # Wild pitches
     p_gs = db.Column(db.Integer, nullable=True)              # Game started
     p_cg = db.Column(db.Integer, nullable=True)              # Complete game
-
     team_win = db.Column(db.Boolean, nullable=False)         # True if pitcher's team won
+    yearID = db.Column(db.Integer, nullable = True)
 
     def __repr__(self):
         return f'<NoHitter {self.id}: {self.pitcher_id} ({self.team}) vs {self.opp} on {self.date}>'
