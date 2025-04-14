@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash, Blueprint
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, login_manager, bcrypt
-
+from sqlalchemy import text
 from app.models import User, NoHitter
 from app.forms import LoginForm, RegistrationForm
 
@@ -66,22 +66,19 @@ def logout():
 
 
 # Dashboard (optional landing page after login)
+# Dashboard (optional landing page after login)
 @bp.route('/dashboard')
-@login_required
 def dashboard():
-    return render_template('dashboard.html')
+    # Fetch the list of teams from the database using raw SQL with text()
+    result = db.session.execute(text('SELECT DISTINCT team_name FROM teams ORDER BY team_name'))
+    teams = [row[0] for row in result]  # Extract team names from the query result
 
+    # Pass the teams to the dashboard template
+    return render_template('dashboard.html', teams=teams)
 
-# No-Hitter dropdown using teams from raw SQL
-@bp.route('/nohitters')
-def nohitter_dropdown():
-    result = db.session.execute('SELECT DISTINCT team_name FROM teams ORDER BY team_name')
-    teams = [row[0] for row in result]
-    return render_template('nohitters_dropdown.html', teams=teams)
-
-
-# No-Hitter display for a selected team
 @bp.route('/nohitters/<team>')
 def show_nohitters(team):
-    nohitters = NoHitter.query.filter_by(team=team).all()
-    return render_template('nohitters_team.html', team=team, nohitters=nohitters)
+    # Here, you can query the database for No-Hitters for this team
+    no_hitters = db.session.execute(text(f"SELECT * FROM no_hitters WHERE team_name = :team"), {'team': team})
+    no_hitters_list = [row for row in no_hitters]
+    return render_template('nohitters.html', no_hitters=no_hitters_list, team=team)

@@ -40,11 +40,9 @@
     <h1>Select a Team to View No-Hitters</h1>
     <div class="dropdown">
         <button class="dropbtn">No-Hitters</button>
-        <div class="dropdown-content">
-            {% for team in teams %}
-                <a href="{{ url_for('routes.show_nohitters', team=team) }}">{{ team }}</a>
-            {% endfor %}
-        </div>
+        <div onclick="insertValue('Apple')">Apple</div>
+        <div onclick="insertValue('Banana')">Banana</div>
+        <div onclick="insertValue('Cherry')">Cherry</div>    
     </div>
 </body>
 </html>
