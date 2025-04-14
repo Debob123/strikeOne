@@ -67,6 +67,8 @@ def copy_baseball_tables():
                     src_cursor.execute(f"SELECT * FROM {table}")
                     rows = src_cursor.fetchall()
 
+
+
                     if rows:
                         src_cursor.execute(f"SHOW COLUMNS FROM {table}")
                         columns = [col[0] for col in src_cursor.fetchall()]
