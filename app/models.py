@@ -29,17 +29,15 @@ class User(db.Model):
         """Check if the provided password matches the stored hash."""
         return bcrypt.check_password_hash(self.password, password)
     
-
-
 class TriviaQuestion(db.Model):
     __tablename__ = 'trivia_questions'
 
     question_id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.Text, nullable=False)
-    query = db.Column(db.Text, nullable=False)
+    question = db.Column(db.String(255), nullable=False)
+    query = db.Column(db.String(255), nullable=False)
 
     def __repr__(self):
-        return f'<TriviaQuestion {self.question_id}: {self.question[:50]}...>'
+        return f'<TriviaQuestion {self.question_id}>'
 
 # --------------------------
 # No-Hitter Model
@@ -74,15 +72,3 @@ class NoHitter(db.Model):
 
     def __repr__(self):
         return f'<NoHitter {self.id}: {self.pitcher_id} ({self.team}) vs {self.opp} on {self.date}>'
-    
-
-class TriviaQuestion(db.Model):
-    __tablename__ = 'trivia_questions'
-
-    question_id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.Text, nullable=False)
-    query = db.Column(db.Text, nullable=False)
-
-    def __repr__(self):
-        return f'<TriviaQuestion {self.question_id}: {self.question[:50]}...>'
-

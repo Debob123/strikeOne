@@ -11,14 +11,14 @@
         <div class="nav-left">
             {% if current_user.is_authenticated %}
                 <a href="{{ url_for('routes.logout') }}" class="btn">Logout</a>
-
+                <a href="{{ url_for('routes.trivia_game') }}" class="btn btn-primary">Play Trivia</a>
                 <div class="dropdown">
                     <button class="btn dropbtn">No-Hitters</button>
                     <div class="dropdown-content">
                         {% for team in teams %}
                             <a href="{{ url_for('routes.show_nohitters', team=team.id) }}">{{ team.name }}</a>
                         {% endfor %}
-                    </div>                    
+                    </div>  
                 </div>
             {% else %}
                 <a href="{{ url_for('routes.login') }}" class="btn">Login</a>
