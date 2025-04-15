@@ -76,8 +76,11 @@ def dashboard():
 @bp.route('/nohitters/<team>')
 def show_nohitters(team):
     # Use a parameterized query to prevent SQL injection
-    query = text("SELECT pitcher_id, teamID, oppID, date, site, vishome, p_ipouts, p_bfp, p_h, p_hr, p_r, p_er, p_w, p_k, p_hbp, p_wp, p_gs, p_cg, team_win, yearID FROM nohitter WHERE teamID = :teamID")
-    result = db.session.execute(query, {'teamID': team})
+    nhQuery = text("SELECT pitcher_id, teamID, oppID, date, site, vishome, p_ipouts, p_bfp, p_h, p_hr, p_r, p_er, p_w, p_k, p_hbp, p_wp, p_gs, p_cg, team_win, yearID FROM nohitter WHERE teamID = :teamID")
+    result = db.session.execute(nhQuery, {'teamID': team})
     no_hitters_list = result.fetchall()
 
-    return render_template('nohitters_team.html', no_hitters=no_hitters_list, team=team)
+    teamQuery =  db.session.execute(text('SELECT DISTINCT team_name, t.teamID FROM teams t RIGHT JOIN nohitter nh ON t.teamID = nh.teamID WHERE team_name IS NOT NULL ORDER BY team_name'))
+    teams = [{'name': row.team_name, 'id': row.teamID} for row in teamQuery]
+
+    return render_template('nohitters_team.html', no_hitters=no_hitters_list, team=team, teams=teams)
