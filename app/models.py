@@ -28,3 +28,14 @@ class User(db.Model):
     def check_password(self, password):
         """Check if the provided password matches the stored hash."""
         return bcrypt.check_password_hash(self.password, password)
+    
+
+class TriviaQuestion(db.Model):
+    __tablename__ = 'trivia_questions'
+
+    question_id = db.Column(db.Integer, primary_key=True)
+    question = db.Column(db.Text, nullable=False)
+    query = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f'<TriviaQuestion {self.question_id}: {self.question[:50]}...>'
