@@ -4,7 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+
+from app.csi3335 import mysql
+from app.csv_import import import_nohitters_from_csv
+import os
 from werkzeug.security import generate_password_hash
+from app import csi3335
 # Initialize libraries
 db = SQLAlchemy()
 migrate = Migrate()
@@ -16,9 +21,9 @@ def create_database():
     try:
         # Connect to MySQL without specifying the database
         connection = pymysql.connect(
-            host='localhost',
-            user='web',
-            password='mypass'
+            host=mysql['host'],
+            user=mysql['user'],
+            password=mysql['password']
         )
         
         print("Connection successful!")
@@ -37,8 +42,8 @@ def create_database():
 def copy_baseball_tables():
     """Copy all tables and data from 'baseball' into 'StrikeOne' if they don't exist."""
     try:
-        source_conn = pymysql.connect(host='localhost', user='web', password='mypass', database='baseball')
-        target_conn = pymysql.connect(host='localhost', user='web', password='mypass', database='StrikeOne')
+        source_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'], database='baseball')
+        target_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'], database='StrikeOne')
 
         with source_conn.cursor() as src_cursor, target_conn.cursor() as tgt_cursor:
             # Disable foreign key checks temporarily
@@ -94,7 +99,7 @@ def create_app():
     app = Flask(__name__)
 
     # Configure the database URI
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://web:mypass@localhost/StrikeOne'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://' + mysql['user'] + ':' + mysql['password'] +'@localhost/StrikeOne'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'super_secret_key'
 
@@ -112,7 +117,7 @@ def create_app():
 
 def create_tables_and_admin(app):
 
-    from app.models import User
+    from app.models import User, NoHitter
     """Create tables and insert the admin account if it doesn't already exist."""
     with app.app_context():
         # Create the tables based on existing models if they don't exist
@@ -138,6 +143,13 @@ def create_tables_and_admin(app):
         
         print ("copying baseball tables")
         copy_baseball_tables()
+
+        # Import nohitters CSV if NoHitter table is empty
+        if NoHitter.query.count() == 0:
+            csv_path = os.path.join(os.path.dirname(__file__), 'static', 'NoHitters-Pitching.csv')
+            import_nohitters_from_csv(csv_path)
+        else:
+            print("NoHitter table already contains data.")
 
 # User loader for Flask-Login
 @login_manager.user_loader
