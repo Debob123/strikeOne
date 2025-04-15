@@ -16,9 +16,9 @@
                     <button class="btn dropbtn">No-Hitters</button>
                     <div class="dropdown-content">
                         {% for team in teams %}
-                            <a href="{{ url_for('routes.show_nohitters', team=team) }}">{{ team }}</a>
+                            <a href="{{ url_for('routes.show_nohitters', team=team.id) }}">{{ team.name }}</a>
                         {% endfor %}
-                    </div>
+                    </div>                    
                 </div>
             {% else %}
                 <a href="{{ url_for('routes.login') }}" class="btn">Login</a>

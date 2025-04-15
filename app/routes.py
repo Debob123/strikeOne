@@ -69,16 +69,15 @@ def logout():
 # Dashboard (optional landing page after login)
 @bp.route('/dashboard')
 def dashboard():
-    # Fetch the list of teams from the database using raw SQL with text()
-    result = db.session.execute(text('SELECT DISTINCT team_name FROM teams ORDER BY team_name'))
-    teams = [row[0] for row in result]  # Extract team names from the query result
-
-    # Pass the teams to the dashboard template
+    result = db.session.execute(text('SELECT DISTINCT team_name, t.teamID FROM teams t RIGHT JOIN nohitter nh ON t.teamID = nh.teamID WHERE team_name IS NOT NULL ORDER BY team_name'))
+    teams = [{'name': row.team_name, 'id': row.teamID} for row in result]
     return render_template('dashboard.html', teams=teams)
 
 @bp.route('/nohitters/<team>')
 def show_nohitters(team):
-    # Here, you can query the database for No-Hitters for this team
-    no_hitters = db.session.execute(text(f"SELECT * FROM no_hitters WHERE team_name = :team"), {'team': team})
-    no_hitters_list = [row for row in no_hitters]
-    return render_template('nohitters.html', no_hitters=no_hitters_list, team=team)
+    # Use a parameterized query to prevent SQL injection
+    query = text("SELECT pitcher_id, teamID, oppID, date, site, vishome, p_ipouts, p_bfp, p_h, p_hr, p_r, p_er, p_w, p_k, p_hbp, p_wp, p_gs, p_cg, team_win, yearID FROM nohitter WHERE teamID = :teamID")
+    result = db.session.execute(query, {'teamID': team})
+    no_hitters_list = result.fetchall()
+
+    return render_template('nohitters_team.html', no_hitters=no_hitters_list, team=team)

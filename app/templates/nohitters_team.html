@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    {% include 'navbar.html' %}
+    {% include 'dashboard.html' %}
     <h1>No-Hitters for {{ team }}</h1>
-    {% if nohitters %}
+    {% if no_hitters %}
         <table>
             <thead>
                 <tr>
@@ -23,11 +23,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for nh in nohitters %}
+                {% for nh in no_hitters %}
                     <tr>
                         <td>{{ nh.date }}</td>
                         <td>{{ nh.pitcher_id }}</td>
-                        <td>{{ nh.opp }}</td>
+                        <td>{{ nh.oppID }}</td>
                         <td>{{ nh.site or 'N/A' }}</td>
                         <td>{{ nh.p_ipouts }}</td>
                         <td>{{ nh.p_k }}</td>

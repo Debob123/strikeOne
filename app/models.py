@@ -39,8 +39,8 @@ class NoHitter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     gid = db.Column(db.String(16), nullable=False)           # Game ID
     pitcher_id = db.Column(db.String(16), nullable=False)
-    team = db.Column(db.String(8), nullable=False)
-    opp = db.Column(db.String(8), nullable=False)
+    teamID = db.Column(db.String(8), nullable=False)
+    oppID = db.Column(db.String(8), nullable=False)
     date = db.Column(db.String(16), nullable=False)
     site = db.Column(db.String(16), nullable=True)
     vishome = db.Column(db.String(1), nullable=False)        # v = visitor, h = home
@@ -59,6 +59,7 @@ class NoHitter(db.Model):
     p_cg = db.Column(db.Integer, nullable=True)              # Complete game
     team_win = db.Column(db.Boolean, nullable=False)         # True if pitcher's team won
     yearID = db.Column(db.Integer, nullable = True)
+
 
     def __repr__(self):
         return f'<NoHitter {self.id}: {self.pitcher_id} ({self.team}) vs {self.opp} on {self.date}>'
