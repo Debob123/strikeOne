@@ -54,3 +54,10 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('routes.login'))  # Redirect to login page after logout
+
+
+@bp.route('/trivia')
+@login_required  # optional: restrict to logged-in users
+def trivia_game():
+    return render_template('trivia.html')  # you'll make this template
+
