@@ -4,9 +4,7 @@ from app import db                # Lazy import to avoid circular import
 from app.models import TriviaQuestion  # Lazy import to avoid circular import
 
 # Define the base directory for file paths
-basedir = os.path.abspath(os.path.dirname(__file__))
-
-def import_trivia_questions_from_csv(csv_path=os.path.join(basedir, 'static', 'trivia_questions.csv')):
+def import_trivia_questions_from_csv(csv_path):
     try:
         with open(csv_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)

@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-
+from sqlalchemy import func
 from app.csi3335 import mysql
 from app.csv_import import import_nohitters_from_csv
 import os
@@ -148,9 +148,10 @@ def create_tables_and_admin(app):
             print("NoHitter table already contains data.")
 
         # TriviaQuestion CSV import
-        if TriviaQuestion.query.count() == 0:
+        if db.session.query(func.count(TriviaQuestion.question_id)).scalar() == 0:
+            csv_path = os.path.join(os.path.dirname(__file__), 'static', 'triviaQuestions.csv')
             from app.trivia import import_trivia_questions_from_csv
-            import_trivia_questions_from_csv()
+            import_trivia_questions_from_csv(csv_path)
         else:
             print("TriviaQuestion table already contains data.")
 
