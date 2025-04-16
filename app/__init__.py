@@ -42,8 +42,8 @@ def create_database():
 def copy_baseball_tables():
     """Copy all tables and data from 'baseball' into 'StrikeOne' if they don't exist."""
     try:
-        source_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'], database='baseball')
-        target_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'], database='StrikeOne')
+        source_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'],database='baseball')
+        target_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'],database='StrikeOne')
 
         with source_conn.cursor() as src_cursor, target_conn.cursor() as tgt_cursor:
             # Disable foreign key checks temporarily
@@ -67,6 +67,8 @@ def copy_baseball_tables():
                     src_cursor.execute(f"SELECT * FROM {table}")
                     rows = src_cursor.fetchall()
 
+
+
                     if rows:
                         src_cursor.execute(f"SHOW COLUMNS FROM {table}")
                         columns = [col[0] for col in src_cursor.fetchall()]
@@ -89,6 +91,46 @@ def copy_baseball_tables():
         source_conn.close()
         target_conn.close()
 
+
+def set_divisions_extended():
+    # Database connection
+    target_conn = pymysql.connect(
+        host=mysql['host'],
+        user=mysql['user'],
+        password=mysql['password'],
+        database='StrikeOne',
+        autocommit=True  # Important for executing multiple statements
+    )
+
+    cursor = target_conn.cursor()
+
+    file_path = './app/static/divisionsExtended.txt'
+
+    try:
+        with open(file_path, 'r') as file:
+            # Read the entire file content
+            sql_script = file.read()
+
+            # Split the script into individual statements (semicolon separated)
+            sql_commands = [cmd.strip() for cmd in sql_script.split(';') if cmd.strip()]
+
+            # Execute each command
+            for command in sql_commands:
+                try:
+                    cursor.execute(command)
+                except pymysql.Error as e:
+                    print(f"Error executing command: {command[:50]}...")
+                    print(f"Database error: {e}")
+
+
+    except FileNotFoundError:
+        print(f"Error: File not found at {file_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close connections
+        cursor.close()
+        target_conn.close()
 
 
 def create_app():
@@ -143,6 +185,7 @@ def create_tables_and_admin(app):
         
         print ("copying baseball tables")
         copy_baseball_tables()
+        set_divisions_extended()
 
         # Import nohitters CSV if NoHitter table is empty
         if NoHitter.query.count() == 0:
