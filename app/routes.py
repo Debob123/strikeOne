@@ -1,12 +1,13 @@
 from flask import render_template, redirect, url_for, request, flash, Blueprint
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, login_manager, bcrypt
-from sqlalchemy import text
-from app.models import User, NoHitter
+from sqlalchemy import text, func
+from app.models import User, NoHitter, TriviaQuestion
 from app.forms import LoginForm, RegistrationForm
 
 from app.forms import LoginForm, RegistrationForm  # created form
 from app.models import User
+import random
 
 
 bp = Blueprint('routes', __name__)
@@ -65,12 +66,6 @@ def logout():
     return redirect(url_for('routes.login'))  # Redirect to login page after logout
 
 
-@bp.route('/trivia')
-@login_required 
-def trivia_game():
-    return render_template('trivia.html')  # you'll make this template
-
-
 # Dashboard (optional landing page after login)
 # Dashboard (optional landing page after login)
 @bp.route('/dashboard')
@@ -91,3 +86,27 @@ def show_nohitters(team):
 
     return render_template('nohitters_team.html', no_hitters=no_hitters_list, team=team, teams=teams)
 
+
+# Route to display a random trivia question
+@bp.route('/trivia')
+@login_required
+def trivia_game():
+
+    question = db.session.query(TriviaQuestion).order_by(func.random()).first()
+
+    if question is None:
+        flash('No trivia questions found in the database!', 'danger')
+        return redirect(url_for('routes.dashboard'))
+
+    if question.question_id == 1:
+        from app.trivia.question1 import generate_question1
+        question_text, error = generate_question1(question.question_text)
+    else:
+        question_text = question.question_text
+        error = None
+
+    if error:
+        flash(error, 'danger')
+        return redirect(url_for('routes.dashboard'))
+
+    return render_template('trivia.html', question_text=question_text)

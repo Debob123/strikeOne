@@ -1,10 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trivia Question</title>
 </head>
 <body>
-    <h2>{{ question.text }}</h2>
+    <h2>Trivia Question</h2>
+
+    {% if question %}
+        <div>
+            <h3>{{ question.question }}</h3>  <!-- Displaying the trivia question -->
+        </div>
+    {% else %}
+        <p>No trivia question available.</p>
+    {% endif %}
 
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -17,9 +27,9 @@
     {% endwith %}
 
     <form method="post">
-        <label for="player_name">Your Answer:</label>
-        <input type="text" name="player_name" id="player_name" required>
-        <button type="submit">Submit</button>
+        <label for="answer">Your Answer:</label>
+        <input type="text" name="answer" id="answer" required>
+        <button type="submit">Submit Answer</button>
     </form>
 </body>
 </html>
