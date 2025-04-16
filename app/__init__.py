@@ -42,10 +42,8 @@ def create_database():
 def copy_baseball_tables():
     """Copy all tables and data from 'baseball' into 'StrikeOne' if they don't exist."""
     try:
-        source_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'],
-                                      database='baseball')
-        target_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'],
-                                      database='StrikeOne')
+        source_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'],database='baseball')
+        target_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'],database='StrikeOne')
 
         with source_conn.cursor() as src_cursor, target_conn.cursor() as tgt_cursor:
             # Disable foreign key checks temporarily
