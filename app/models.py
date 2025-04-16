@@ -29,6 +29,15 @@ class User(db.Model):
         """Check if the provided password matches the stored hash."""
         return bcrypt.check_password_hash(self.password, password)
     
+class TriviaQuestion(db.Model):
+    __tablename__ = 'trivia_questions'
+
+    question_id = db.Column(db.Integer, primary_key=True)
+    question = db.Column(db.String(255), nullable=False)
+    query = db.Column(db.String(255), nullable=False)
+
+    def __repr__(self):
+        return f'<TriviaQuestion {self.question_id}>'
 
 # --------------------------
 # No-Hitter Model
@@ -39,8 +48,8 @@ class NoHitter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     gid = db.Column(db.String(16), nullable=False)           # Game ID
     pitcher_id = db.Column(db.String(16), nullable=False)
-    teamID = db.Column(db.String(8), nullable=False)
-    oppID = db.Column(db.String(8), nullable=False)
+    teamID = db.Column(db.String(3), nullable=False)
+    oppID = db.Column(db.String(3), nullable=False)
     date = db.Column(db.String(16), nullable=False)
     site = db.Column(db.String(16), nullable=True)
     vishome = db.Column(db.String(1), nullable=False)        # v = visitor, h = home
@@ -63,3 +72,5 @@ class NoHitter(db.Model):
 
     def __repr__(self):
         return f'<NoHitter {self.id}: {self.pitcher_id} ({self.team}) vs {self.opp} on {self.date}>'
+    
+

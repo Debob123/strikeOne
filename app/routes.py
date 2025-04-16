@@ -1,12 +1,13 @@
 from flask import render_template, redirect, url_for, request, flash, Blueprint
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, login_manager, bcrypt
-from sqlalchemy import text
-from app.models import User, NoHitter
+from sqlalchemy import text, func
+from app.models import User, NoHitter, TriviaQuestion
 from app.forms import LoginForm, RegistrationForm
 
 from app.forms import LoginForm, RegistrationForm  # created form
 from app.models import User
+import random
 
 
 bp = Blueprint('routes', __name__)
@@ -62,7 +63,7 @@ def register():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('routes.login'))
+    return redirect(url_for('routes.login'))  # Redirect to login page after logout
 
 
 # Dashboard (optional landing page after login)
@@ -84,3 +85,37 @@ def show_nohitters(team):
     teams = [{'name': row.team_name, 'id': row.teamID} for row in teamQuery]
 
     return render_template('nohitters_team.html', no_hitters=no_hitters_list, team=team, teams=teams)
+
+
+# Route to display a random trivia question
+@bp.route('/trivia', methods=['GET', 'POST'])
+@login_required
+def trivia_game():
+    if request.method == 'POST':
+        # Handle answer submission
+        user_input = request.form.get('answer', '').strip()
+
+        from app.trivia.question1 import check_answer
+        message = check_answer(user_input)
+
+        flash(message)
+        return redirect(url_for('routes.trivia_game'))
+
+    # Otherwise, show a question
+    question = db.session.query(TriviaQuestion).order_by(func.random()).first()
+
+    if question is None:
+        flash('No trivia questions found in the database!', 'danger')
+        return redirect(url_for('routes.dashboard'))
+
+    if question.question_id == 1:
+        from app.trivia.question1 import generate_question1
+        question_text, error = generate_question1(question.question)
+
+        if error:
+            flash(error, 'danger')
+            return redirect(url_for('routes.dashboard'))
+    else:
+        question_text = question.question
+
+    return render_template('trivia.html', question_text=question_text)

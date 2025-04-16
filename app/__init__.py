@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-
+from sqlalchemy import func
 from app.csi3335 import mysql
 from app.csv_import import import_nohitters_from_csv
 import os
@@ -158,41 +158,46 @@ def create_app():
     return app
 
 def create_tables_and_admin(app):
-
-    from app.models import User, NoHitter
+    from app.models import User, NoHitter, TriviaQuestion  
     """Create tables and insert the admin account if it doesn't already exist."""
     with app.app_context():
-        # Create the tables based on existing models if they don't exist
         db.create_all()
 
-        # Check if the admin account already exists
+        # Admin account setup
         admin_account = User.query.filter_by(username='admin').first()
-
         if admin_account is None:
-             # If the admin account doesn't exist, create it
-             hashed_password = bcrypt.generate_password_hash('adminpassword').decode('utf-8')  # Use bcrypt here
-             new_admin = User(
-                  username='admin',
-                  password=hashed_password,
-                  is_admin=True,
-                  is_banned=False
+            hashed_password = bcrypt.generate_password_hash('adminpassword').decode('utf-8')
+            new_admin = User(
+                username='admin',
+                password=hashed_password,
+                is_admin=True,
+                is_banned=False
             )
-             db.session.add(new_admin)
-             db.session.commit()
-             print("Admin account created.")
+            db.session.add(new_admin)
+            db.session.commit()
+            print("Admin account created.")
         else:
             print("Admin account already exists.")
         
-        print ("copying baseball tables")
+        print("Copying baseball tables")
         copy_baseball_tables()
         set_divisions_extended()
 
-        # Import nohitters CSV if NoHitter table is empty
+        # NoHitter table CSV import
         if NoHitter.query.count() == 0:
             csv_path = os.path.join(os.path.dirname(__file__), 'static', 'NoHitters-Pitching.csv')
             import_nohitters_from_csv(csv_path)
         else:
             print("NoHitter table already contains data.")
+
+        # TriviaQuestion CSV import
+        if db.session.query(func.count(TriviaQuestion.question_id)).scalar() == 0:
+            csv_path = os.path.join(os.path.dirname(__file__), 'static', 'triviaQuestions.csv')
+            from app.trivia import import_trivia_questions_from_csv
+            import_trivia_questions_from_csv(csv_path)
+        else:
+            print("TriviaQuestion table already contains data.")
+
 
 # User loader for Flask-Login
 @login_manager.user_loader
