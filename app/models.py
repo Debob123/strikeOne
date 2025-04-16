@@ -48,8 +48,8 @@ class NoHitter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     gid = db.Column(db.String(16), nullable=False)           # Game ID
     pitcher_id = db.Column(db.String(16), nullable=False)
-    teamID = db.Column(db.String(8), nullable=False)
-    oppID = db.Column(db.String(8), nullable=False)
+    teamID = db.Column(db.String(3), nullable=False)
+    oppID = db.Column(db.String(3), nullable=False)
     date = db.Column(db.String(16), nullable=False)
     site = db.Column(db.String(16), nullable=True)
     vishome = db.Column(db.String(1), nullable=False)        # v = visitor, h = home
@@ -74,78 +74,3 @@ class NoHitter(db.Model):
         return f'<NoHitter {self.id}: {self.pitcher_id} ({self.team}) vs {self.opp} on {self.date}>'
     
 
-class Batting(db.Model):
-    __tablename__ = 'batting'
-
-    id = db.Column(db.Integer, primary_key=True)
-    player_id = db.Column(db.String(16), nullable=False)    # Player ID
-    year_id = db.Column(db.Integer, nullable=False)          # Year
-    team_id = db.Column(db.String(8), nullable=False)        # Team ID
-    games_played = db.Column(db.Integer, nullable=False)     # Games played
-    at_bats = db.Column(db.Integer, nullable=False)          # At-bats
-    runs = db.Column(db.Integer, nullable=False)             # Runs
-    hits = db.Column(db.Integer, nullable=False)             # Hits
-    doubles = db.Column(db.Integer, nullable=False)          # Doubles
-    triples = db.Column(db.Integer, nullable=False)          # Triples
-    home_runs = db.Column(db.Integer, nullable=False)        # Home runs
-    rbi = db.Column(db.Integer, nullable=False)              # Runs batted in
-    walks = db.Column(db.Integer, nullable=False)            # Walks
-    strikeouts = db.Column(db.Integer, nullable=False)       # Strikeouts
-    stolen_bases = db.Column(db.Integer, nullable=False)     # Stolen bases
-    caught_stealing = db.Column(db.Integer, nullable=False)  # Caught stealing
-    hbp = db.Column(db.Integer, nullable=False)              # Hit by pitch
-    sac_fly = db.Column(db.Integer, nullable=False)          # Sacrifice flies
-
-    def __repr__(self):
-        return f'<Batting {self.player_id} - {self.year_id}>'
-
-
-
-
-class Team(db.Model):
-    __tablename__ = 'teams'
-
-    teams_id = db.Column(db.Integer, primary_key=True)
-    team_id = db.Column(db.String(3), nullable=False)  # Team ID (e.g., "BOS", "NYM")
-    year_id = db.Column(db.SmallInteger, nullable=False)  # Year (e.g., 2023)
-    lg_id = db.Column(db.String(2), nullable=True)  # League ID (e.g., "AL", "NL")
-    div_id = db.Column(db.String(1), nullable=True)  # Division ID (e.g., "E", "W", "C")
-    franch_id = db.Column(db.String(3), nullable=True)  # Franchise ID (e.g., "BOS", "NYM")
-    team_name = db.Column(db.String(50), nullable=True)  # Team name (e.g., "Red Sox")
-    team_rank = db.Column(db.SmallInteger, nullable=True)  # Team rank in division
-    team_games = db.Column(db.SmallInteger, nullable=True)  # Games played
-    team_wins = db.Column(db.SmallInteger, nullable=True)  # Wins
-    team_losses = db.Column(db.SmallInteger, nullable=True)  # Losses
-    team_run = db.Column(db.SmallInteger, nullable=True)  # Runs scored
-    team_ab = db.Column(db.SmallInteger, nullable=True)  # At-bats
-    team_hits = db.Column(db.SmallInteger, nullable=True)  # Hits
-    team_2b = db.Column(db.SmallInteger, nullable=True)  # Doubles
-    team_3b = db.Column(db.SmallInteger, nullable=True)  # Triples
-    team_hr = db.Column(db.SmallInteger, nullable=True)  # Home runs
-    team_bb = db.Column(db.SmallInteger, nullable=True)  # Walks
-    team_so = db.Column(db.SmallInteger, nullable=True)  # Strikeouts
-    team_sb = db.Column(db.SmallInteger, nullable=True)  # Stolen bases
-    team_cs = db.Column(db.SmallInteger, nullable=True)  # Caught stealing
-    team_hbp = db.Column(db.SmallInteger, nullable=True)  # Hit by pitch
-    team_sac_fly = db.Column(db.SmallInteger, nullable=True)  # Sacrifice flies
-    team_era = db.Column(db.Float, nullable=True)  # Earned Run Average
-    team_cg = db.Column(db.SmallInteger, nullable=True)  # Complete games
-    team_sho = db.Column(db.SmallInteger, nullable=True)  # Shutouts
-    team_sv = db.Column(db.SmallInteger, nullable=True)  # Saves
-    team_ipouts = db.Column(db.Integer, nullable=True)  # Innings pitched (outs)
-    team_ha = db.Column(db.SmallInteger, nullable=True)  # Hits allowed
-    team_hra = db.Column(db.SmallInteger, nullable=True)  # Home runs allowed
-    team_bba = db.Column(db.SmallInteger, nullable=True)  # Walks allowed
-    team_soa = db.Column(db.SmallInteger, nullable=True)  # Strikeouts allowed
-    team_e = db.Column(db.SmallInteger, nullable=True)  # Errors
-    team_dp = db.Column(db.SmallInteger, nullable=True)  # Double plays
-    team_fp = db.Column(db.Float, nullable=True)  # Fielding percentage
-    park_name = db.Column(db.String(50), nullable=True)  # Park name
-    team_attendance = db.Column(db.Integer, nullable=True)  # Attendance
-    team_bpf = db.Column(db.SmallInteger, nullable=True)  # Batting park factor
-    team_ppf = db.Column(db.SmallInteger, nullable=True)  # Pitching park factor
-    team_proj_w = db.Column(db.SmallInteger, nullable=True)  # Projected wins
-    team_proj_l = db.Column(db.SmallInteger, nullable=True)  # Projected losses
-
-    def __repr__(self):
-        return f'<Team {self.team_name} ({self.year_id})>'

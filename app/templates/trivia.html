@@ -8,9 +8,9 @@
 <body>
     <h2>Trivia Question</h2>
 
-    {% if question %}
+    {% if question_text %}
         <div>
-            <h3>{{ question.question }}</h3>  <!-- Displaying the trivia question -->
+            <h3>{{ question_text }}</h3>  <!-- Displaying the trivia question -->
         </div>
     {% else %}
         <p>No trivia question available.</p>
