@@ -44,6 +44,7 @@ def copy_baseball_tables():
     try:
         source_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'],
                                       database='baseball')
+        target_conn = pymysql.connect(host=mysql['host'], user=mysql['user'], password=mysql['password'],
                                       database='StrikeOne')
 
         with source_conn.cursor() as src_cursor, target_conn.cursor() as tgt_cursor:
