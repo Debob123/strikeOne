@@ -88,34 +88,34 @@ def show_nohitters(team):
 
 
 # Route to display a random trivia question
-@bp.route('/trivia')
+@bp.route('/trivia', methods=['GET', 'POST'])
 @login_required
 def trivia_game():
-    # Query for a random trivia question
+    if request.method == 'POST':
+        # Handle answer submission
+        user_input = request.form.get('answer', '').strip()
+
+        from app.trivia.question1 import check_answer
+        message = check_answer(user_input)
+
+        flash(message)
+        return redirect(url_for('routes.trivia_game'))
+
+    # Otherwise, show a question
     question = db.session.query(TriviaQuestion).order_by(func.random()).first()
 
     if question is None:
         flash('No trivia questions found in the database!', 'danger')
-        print("No trivia questions found in the database!")
         return redirect(url_for('routes.dashboard'))
 
     if question.question_id == 1:
         from app.trivia.question1 import generate_question1
         question_text, error = generate_question1(question.question)
 
-        # Print error message if one occurred
         if error:
-            print(f"Error generating question: {error}")
+            flash(error, 'danger')
+            return redirect(url_for('routes.dashboard'))
     else:
-        question_text = question.question_text
-        error = None
-
-    if error:
-        flash(error, 'danger')
-        print(f"Error: {error}")
-        return redirect(url_for('routes.dashboard'))
-
-    # Print the selected trivia question
-    # print(f"Trivia Question: {question_text}") 
+        question_text = question.question
 
     return render_template('trivia.html', question_text=question_text)

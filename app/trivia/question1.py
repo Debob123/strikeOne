@@ -1,6 +1,6 @@
 from flask import session
 from app import db
-from sqlalchemy import text
+from sqlalchemy import text, func
 import random
 
 def generate_question1(question_text):
@@ -66,3 +66,52 @@ def generate_question1(question_text):
     session['trivia_teamB'] = team_id_2
 
     return rendered_text, None
+
+
+
+def check_answer(user_input):
+    if not user_input:
+        return "You must enter a player's name."
+
+    # Split first and last name
+    parts = user_input.strip().lower().split()
+    if len(parts) != 2:
+        return "Please enter both a first and last name."
+
+    first_name, last_name = parts
+
+    # Step 1: Find the playerID that matches the given name
+    query = text('''
+        SELECT playerID
+        FROM people
+        WHERE LOWER(nameFirst) = :first_name AND LOWER(nameLast) = :last_name
+    ''')
+    result = db.session.execute(query, {'first_name': first_name, 'last_name': last_name})
+    row = result.fetchone()
+
+    if not row:
+        return f"No player found with the name {first_name.title()} {last_name.title()}."
+
+    submitted_player_id = row[0]
+
+    # Step 2: Get the teamIDs from the session
+    teamA = session.get('trivia_teamA')
+    teamB = session.get('trivia_teamB')
+
+    if not teamA or not teamB:
+        return "Session expired or invalid question context. Please try again."
+
+    # Step 3: Check if player played for both teams
+    query = text('''
+        SELECT DISTINCT teamID
+        FROM batting
+        WHERE playerID = :player_id
+    ''')
+    result = db.session.execute(query, {'player_id': submitted_player_id})
+    teams_played_for = {row[0] for row in result.fetchall()}
+
+    if teamA in teams_played_for and teamB in teams_played_for:
+        return f" Correct! {first_name.title()} {last_name.title()} played for both teams."
+    else:
+        return f"Incorrect. {first_name.title()} {last_name.title()} did not play for both teams."
+
