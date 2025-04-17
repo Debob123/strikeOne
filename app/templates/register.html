@@ -1,16 +1,40 @@
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div>
-        <label for="username">Username</label>
-        {{ form.username }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"  content="width=device-width, initial-scale=1.0">
+    <title>Register - Strike One</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/register.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="site-title">Strike One</h1>
+        <div class="wrapper">
+            <form method="POST">
+                <h1>Register</h1>
+                {{ form.hidden_tag() }}
+
+                <div class="input-box">
+                    {{ form.username(placeholder="username") }}
+                    <i class='bx bx-user-circle'></i>
+                </div>
+                <div class="input-box">
+                    {{ form.password(placeholder="password") }}
+                    <i class='bx bx-lock'></i>
+                </div>
+                <div class="input-box">
+                    {{ form.confirm_password(placeholder="confirm password") }}
+                    <i class='bx bx-sync'></i>
+                </div>
+
+                <button type="submit" class="btn">Register</button>
+            </form>
+            <p class="create-account-link">Already have an account? <a href="{{ url_for('routes.login') }}">Login</a></p>
+        </div>
     </div>
-    <div>
-        <label for="password">Password</label>
-        {{ form.password }}
-    </div>
-    <div>
-        <label for="confirm_password">Confirm Password</label>
-        {{ form.confirm_password }}
-    </div>
-    <button type="submit">Register</button>
-</form>
+</body>
+
+</html>
