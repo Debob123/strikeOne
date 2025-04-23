@@ -1,0 +1,13 @@
+CREATE TABLE season_stats (playerID VARCHAR(10),nameFirst VARCHAR(50),nameLast VARCHAR(50),yearID INT,total_sacrifice_hits INT,total_strikeouts INT,total_sacrifice_flies INT,total_hit_by_pitch INT,total_stolen_base INT,total_home_runs INT,total_hits INT,PRIMARY KEY (playerID, yearID),FOREIGN KEY (playerID) REFERENCES people(playerID));
+INSERT INTO season_stats (playerID, nameFirst, nameLast, yearID,total_sacrifice_hits, total_strikeouts,total_sacrifice_flies, total_hit_by_pitch,total_stolen_base, total_home_runs, total_hits) SELECT b.playerID,p.nameFirst,p.nameLast,b.yearID,SUM(b.b_SH),SUM(b.b_SO),SUM(b.b_SF),SUM(b.b_HBP),SUM(b.b_SB),SUM(b.b_HR),SUM(b.b_H) FROM batting b JOIN people p ON b.playerID = p.playerID GROUP BY b.playerID, p.nameFirst, p.nameLast, b.yearID;
+CREATE INDEX idx_season_stats_playerID ON season_stats(playerID);
+CREATE INDEX idx_season_stats_nameFirst ON season_stats(nameFirst);
+CREATE INDEX idx_season_stats_nameLast ON season_stats(nameLast);
+CREATE INDEX idx_season_stats_yearID ON season_stats(yearID);
+CREATE INDEX idx_season_stats_sacrifice_hits ON season_stats(total_sacrifice_hits);
+CREATE INDEX idx_season_stats_strikeouts ON season_stats(total_strikeouts);
+CREATE INDEX idx_season_stats_sacrifice_flies ON season_stats(total_sacrifice_flies);
+CREATE INDEX idx_season_stats_hit_by_pitch ON season_stats(total_hit_by_pitch);
+CREATE INDEX idx_season_stats_stolen_base ON season_stats(total_stolen_base);
+CREATE INDEX idx_season_stats_home_runs ON season_stats(total_home_runs);
+CREATE INDEX idx_season_stats_hits ON season_stats(total_hits);
