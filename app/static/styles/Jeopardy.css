@@ -1,0 +1,189 @@
+html, body {
+    height: 85%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    background: darkblue;
+}
+
+
+h1 {
+    font-size: 3em;
+    text-shadow: 2px 2px #000;
+    margin-bottom: 10px;
+    margin-top: 0.3%;
+    color: gold;
+}
+.scoreboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 10px 30px;
+    background-color: #f2f2f2;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.scoreboard .player1 {
+    color: navy;
+}
+
+.scoreboard .player2 {
+    color: darkred;
+    text-align: right;
+}
+
+.scoreboard .turn {
+    color: green;
+    text-align: center;
+}
+
+
+p {
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+table {
+    width: 100%;
+    height: 90%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-top: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+th, td {
+    border: 2px solid #fff;
+    padding: 15px;
+    text-align: center;
+    vertical-align: top;
+    font-weight: bold;
+}
+
+th {
+    background-color: #001f4d;
+    color: #ffcc00;
+    font-size: 1.8em;
+}
+
+td {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+
+    height: 11vh;           /* responsive height based on viewport height */
+    width: 160px;
+
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+    position: relative;
+}
+
+
+
+td:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+button {
+    background: #ffcc00;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    width: 80%;
+    height: 80%;
+    margin-top: 3%;
+    transition: transform 0.2s, background 0.2s;
+
+    /* Text styles */
+    color: #220229;           /* Text color */
+    font-size: 1.8em;       /* Increase size (adjust as needed) */
+    font-weight: bold;      /* Make it thick/bold */
+    text-transform: uppercase; /* Optional: make it ALL CAPS */
+}
+
+
+button:hover {
+    background: #ffd633;
+    transform: scale(1.05);
+}
+
+input[type="text"] {
+    width: 80%;
+
+}
+
+.question-box {
+    font-size: clamp(0.8em, 1.5vw, 1.2em); /* Responsive font size */
+    width: 100%;
+    height: 100%;                     /* Fill available height */
+    padding: 4px;
+    overflow: hidden;                /* Prevent overflow */
+    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 0.9em;
+    box-sizing: border-box;          /* Include padding in height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;         /* Vertically center content */
+}
+
+
+
+.submit-btn {
+    background: #00cc66;
+    color: #fff;
+
+    width: 90%;              /* slightly smaller than full width */
+    height: 35%;             /* height relative to the td — adjust as needed */
+    max-height: 100%;        /* never exceed td height */
+    font-size: 1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    line-height: 1.1em;
+    box-sizing: border-box;
+    margin-top: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+
+
+
+.submit-btn:hover {
+    background: #00e673;
+}
+
+p.result-correct {
+    color: #00ff99;
+
+    font-size: 2.0em;       /* Increase size (adjust as needed) */
+    font-weight: bold;      /* Make it thick/bold */
+    text-transform: uppercase; /* Optional: make it ALL CAPS */
+}
+
+p.result-wrong {
+    text-align: center;
+    color: #ff4444;
+
+    font-size: 2.0em;       /* Increase size (adjust as needed) */
+    font-weight: bold;      /* Make it thick/bold */
+    text-transform: uppercase; /* Optional: make it ALL CAPS */
+}

@@ -1,3 +1,4 @@
 question_id,question,query
 1,"Name a player who has played for the {teamA} and for the {teamB}.","SELECT playerName FROM player_team WHERE teamID IN (SELECT teamID FROM team WHERE teamName = '{teamA}') AND playerID IN (SELECT playerID FROM player_team WHERE teamID IN (SELECT teamID FROM team WHERE teamName = '{teamB}'));"
 
+

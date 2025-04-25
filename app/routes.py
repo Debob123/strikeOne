@@ -1,8 +1,15 @@
+from os import replace
+from urllib.parse import unquote
 from flask import render_template, redirect, url_for, request, flash, Blueprint
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, login_manager, bcrypt
 from sqlalchemy import text, func
+from flask import jsonify
+import random
+from app.jeopardy import generate_questions
+from app.jeopardy import stored_answers
 from app.models import User, NoHitter, TriviaQuestion
+import app.jeopardy
 from app.forms import LoginForm, RegistrationForm
 
 from app.forms import LoginForm, RegistrationForm  # created form
@@ -11,6 +18,7 @@ import random
 
 
 bp = Blueprint('routes', __name__)
+
 
 # Home page
 @bp.route('/')
@@ -126,6 +134,7 @@ def show_nohitters(team):
                            teams=teams, 
                            name=team_name)
 
+
 # Route to display a random trivia question
 @bp.route('/trivia', methods=['GET', 'POST'])
 @login_required
@@ -158,3 +167,44 @@ def trivia_game():
         question_text = question.question
 
     return render_template('trivia.html', question_text=question_text)
+
+@bp.route('/jeopardy', methods=['GET', 'POST'])
+@login_required
+def jeopardy():
+    question = ''
+    sql = ''
+    app.jeopardy.stored_answers = []
+    questions_text= generate_questions()
+
+    print(str(questions_text))
+    print(str(len(questions_text)))
+
+    category = sorted(set(q['category'] for q in questions_text))
+    lookup = {(q['category'], q['points']): q for q in questions_text}
+
+    player1 = 0
+    player2 = 0
+
+    return render_template('jeopardy.html', questions_text=questions_text,
+                           categories=category, lookup=lookup, player1=player1, player2=player2)
+
+
+
+@bp.route('/submitJeopardy')
+def submit():
+    answer = request.args.get('answer')
+    id = request.args.get('sql')
+    results = []
+
+
+    for item in app.jeopardy.stored_answers:
+        if id in item:
+            print(item)
+            print(id)
+
+            results = item[id]  # ➜ ['Hank Aaron', 'Babe Ruth']
+            print(results)
+
+    correct = answer.strip().lower() in [str(r).strip().lower() for r in results]
+
+    return jsonify({"result": "Correct" if correct else "Wrong"})

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Baseball Jeopardy</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/jeopardy.css') }}">
+
+    </head>
+    <body>
+        <h1>⚾ Baseball Jeopardy! 🎯</h1>
+        <div class="scoreboard">
+            <p class="player1">Player 1 Score: <span id="player1-score">0</span></p>
+            <p class = "turn">Turn: <span id="turn">Player 1</span></p>
+            <p class="player2">Player 2 Score: <span id="player2-score">0</span></p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    {% for cat in categories %}
+                        <th>{{ cat }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for point in [100, 200, 300, 400, 500] %}
+                    <tr>
+                        {% for cat in categories %}
+                            {% set q = lookup.get((cat, point)) %}
+                            <td>
+                                {% if q %}
+                                    <button onclick="toggleQuestion('q_{{ cat }}_{{ point }}', this)">{{ q.points }}</button>
+                                    <div id="q_{{ cat }}_{{ point }}" class="question-box" style="display:none; margin-bottom: 0;">
+                                        <strong>Question:</strong> {{ q.question }}<br>
+                                        <input type="text" placeholder="Your answer here..." style="width: 100%; box-sizing: border-box;">
+                                        <button class="submit-btn" onclick="submitAnswer('q_{{ cat }}_{{ point }}')">Submit</button>
+                                    </div>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <script>
+            let questionLocked = false;
+            let player1 = true;
+            let player2 = false;
+
+            function toggleQuestion(id, btn) {
+                if (questionLocked) return;
+
+                const element = document.getElementById(id);
+                if (element.style.display === "none") {
+                    element.style.display = "block";
+                    if (btn) {
+                        btn.remove(); // remove the points button
+                    }
+                    questionLocked = true;
+                }
+            }
+
+            function submitAnswer(buttonId, player) {
+                const button = document.getElementById(buttonId);
+                const value = button.querySelector("input");
+                const input = value.value.trim();
+                const td = button.closest("td");
+
+
+
+                // If sql is a string or list of strings
+
+                fetch(`/submitJeopardy?answer=${encodeURIComponent(input)}&sql=${buttonId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const resultText = document.createElement("p");
+                        resultText.textContent = data.result;
+                        resultText.className = data.result === "Correct" ? "result-correct" : "result-wrong";
+
+                        const turn = document.getElementById(`turn`);
+                        if (player1) {
+                            player1 = false;
+                            player2 = true;
+                            player = 1;
+                            turn.textContent = "Player 2";
+                        } else {
+                            player1 = true;
+                            player2 = false;
+                            player = 2;
+                            turn.textContent = "Player 1";
+                        }
+
+                        if (data.result === "Correct") {
+                            const parts = buttonId.split("_");
+                            const points = parseInt(parts[parts.length - 1]);
+                            const scoreEl = document.getElementById(`player${player}-score`);
+                            if (scoreEl) {
+                                scoreEl.textContent = parseInt(scoreEl.textContent) + points;
+                                console.log("Fuck")
+                                console.log(parts)
+                                console.log(points)
+                                console.log(scoreEl)
+                            }
+                        }
+
+                        td.innerHTML = "";
+                        td.appendChild(resultText);
+                        questionLocked = false;
+                    });
+            }
+
+        </script>
+    </body>
+</html>
