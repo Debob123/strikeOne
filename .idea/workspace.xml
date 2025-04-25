@@ -5,18 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="99431ba3-1283-4018-9f2e-4afb99a6bb27" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/strikeOne.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/jeopardy.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/static/battingSeason.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/static/styles/Jeopardy.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/templates/jeopardy.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/jeopardy.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/jeopardy.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/triviaQuestions.csv" beforeDir="false" afterPath="$PROJECT_DIR$/app/static/triviaQuestions.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/static/battingSeason.txt" beforeDir="false" afterPath="$PROJECT_DIR$/app/static/battingSeason.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/static/styles/Jeopardy.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/static/styles/Jeopardy.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/jeopardy.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/jeopardy.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +108,7 @@
       <option name="presentableId" value="Default" />
       <updated>1745175323764</updated>
       <workItem from="1745175325250" duration="51281000" />
-      <workItem from="1745431090747" duration="9040000" />
+      <workItem from="1745431090747" duration="24357000" />
     </task>
     <servers />
   </component>

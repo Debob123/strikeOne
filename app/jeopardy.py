@@ -179,14 +179,8 @@ batting_questions_100 = [
     "Name a player who has more than 50 stolen bases in a season"
 ]
 batting_sql_100 = [
-    """SELECT p.nameFirst || ' ' || p.nameLast 
-       FROM batting b
-       JOIN people p ON b.playerID = p.playerID
-       GROUP BY b.playerid,yearid HAVING SUM(b.b_HR) > 30""",
-    """SELECT p.nameFirst || ' ' || p.nameLast 
-       FROM batting b
-       JOIN people p ON b.playerID = p.playerID
-       GROUP BY b.playerid,yearid HAVING SUM(b.b_SB) > 50"""
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}"""
 ]
 
 batting_questions_200 = [
@@ -233,18 +227,9 @@ batting_questions_300 = [
     "Name the player who has the most Hits in a season of all time"
 ]
 batting_sql_300 = [
-    """SELECT p.nameFirst || ' ' || p.nameLast 
-           FROM batting b
-           JOIN people p ON b.playerID = p.playerID
-           GROUP BY b.playerid,yearid ORDER BY SUM(b.b_SB) DESC LIMIT 1""",
-    """SELECT p.nameFirst || ' ' || p.nameLast  
-           FROM batting b
-           JOIN people p ON b.playerID = p.playerID
-           GROUP BY b.playerid,yearid ORDER BY SUM(b.b_HR) DESC LIMIT 1""",
-    """SELECT p.nameFirst || ' ' || p.nameLast  
-           FROM batting b
-           JOIN people p ON b.playerID = p.playerID
-           GROUP BY b.playerid,yearid ORDER BY SUM(b.b_H) DESC LIMIT 1"""
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}"""
 ]
 
 batting_questions_400 = [
@@ -304,28 +289,16 @@ batting_questions_500 = [
 ]
 batting_sql_500 = [
     # Most Sacrifice Hits single season (all-time)
-    """SELECT p.nameFirst || ' ' || p.nameLast 
-       FROM batting b
-       JOIN people p ON b.playerID = p.playerID
-       GROUP BY b.playerid,yearid ORDER BY SUM(b.b_SH) DESC LIMIT 1""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
 
     # Most Strikeouts single season (all-time)
-    """SELECT p.nameFirst || ' ' || p.nameLast 
-       FROM batting b
-       JOIN people p ON b.playerID = p.playerID
-       GROUP BY b.playerid,yearid ORDER BY SUM(b.b_SO) DESC LIMIT 1""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
 
     # Most Sacrifice Flies single season (all-time)
-    """SELECT p.nameFirst || ' ' || p.nameLast  
-       FROM batting b
-       JOIN people p ON b.playerID = p.playerID
-       GROUP BY b.playerid,yearid ORDER BY SUM(b.b_SF) DESC LIMIT 1""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
 
     # Most Hit By Pitch single season (all-time)
-    """SELECT p.nameFirst || ' ' || p.nameLast  
-       FROM batting b
-       JOIN people p ON b.playerID = p.playerID
-       GROUP BY b.playerid,yearid ORDER BY SUM(b.b_HBP) DESC LIMIT 1"""
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}"""
 ]
 
 # Organized dictionary
@@ -565,23 +538,11 @@ fielding_questions_300 = ["Name a player who has more than 1500 put outs in a se
                           "Name a player who has caused more than 150 double plays in a season"]
 
 fielding_sql_300 = [
-    """SELECT DISTINCT nameFirst || ' ' || nameLast 
-       FROM fielding f
-       JOIN people p ON f.playerID = p.playerID
-       GROUP BY f.playerID, f.yearID 
-       HAVING SUM(f.f_PO) > 1500""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
 
-    """SELECT DISTINCT nameFirst || ' ' || nameLast
-       FROM fielding f
-       JOIN people p ON f.playerID = p.playerID
-       GROUP BY f.playerID, f.yearID 
-       HAVING SUM(f.f_gs) > 300""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
 
-    """SELECT DISTINCT nameFirst || ' ' || nameLast 
-       FROM fielding f
-       JOIN people p ON f.playerID = p.playerID
-       GROUP BY f.playerID, f.yearID 
-       HAVING SUM(f.f_DP) > 150"""
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}"""
 ]
 
 fielding_questions_400 = ["Name a player who has started more than 300 games in the year {yearid}",
@@ -616,23 +577,11 @@ fielding_questions_500 = ["Name the player with the most putouts in a season of 
                           "Name a player with more than 100 errors in a season"]
 
 fielding_sql_500 = [
-    """SELECT nameFirst || ' ' || nameLast 
-       FROM fielding f
-       JOIN people p ON f.playerID = p.playerID
-       GROUP BY f.playerID, f.yearID 
-       ORDER BY SUM(f.f_PO) DESC LIMIT 1""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
 
-    """SELECT nameFirst || ' ' || nameLast 
-       FROM fielding f
-       JOIN people p ON f.playerID = p.playerID
-       GROUP BY f.playerID, f.yearID 
-       ORDER BY SUM(f.f_CS) DESC LIMIT 1""",
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}""",
 
-    """SELECT DISTINCT nameFirst || ' ' || nameLast 
-       FROM fielding f
-       JOIN people p ON f.playerID = p.playerID
-       GROUP BY f.playerID, f.yearID 
-       HAVING SUM(f.f_E) > 100"""
+    """Select name FROM JeopardyValues WHERE type = '{type}' AND idx = {index}"""
 ]
 
 
@@ -839,7 +788,6 @@ def generate_questions():
                 fortnite = []
                 count = 0
                 while not fortnite:
-                    print("WE IN")
                     team1 = 'team1'
                     team2 = 'team2'
                     team3 = 'team3'
@@ -900,13 +848,13 @@ def generate_questions():
                 while not fortnite:
 
                     gen = len(categories[category][number]['questions'])
-                    #print(str(number))
+                    print(str(number))
 
 
                     index = random.randint(0, gen - 1)
-
-                    question = categories[category][number]['questions'][index]
-                    sql = categories[category][number]['sql'][index]
+                    type = 'batting_' + str(number)
+                    question = categories[category][number]['questions'][index].format(index=index,type=type)
+                    sql = categories[category][number]['sql'][index].format(index=index,type=type)
 
                     # print(text(sql))
                     fortnite = db.session.execute(text(sql)).fetchall()
@@ -957,9 +905,9 @@ def generate_questions():
                     yearid = 2000 + random.randint(1, 23)
 
                     index = random.randint(0, gen - 1)
-
-                    question = categories[category][number]['questions'][index].format(yearid=yearid)
-                    sql = categories[category][number]['sql'][index].format(yearid=yearid)
+                    type = 'fielding_' + str(number)
+                    question = categories[category][number]['questions'][index].format(yearid=yearid,index=index,type=type)
+                    sql = categories[category][number]['sql'][index].format(yearid=yearid,index=index,type=type)
 
                     #print(text(question))
                     #print(text(sql))

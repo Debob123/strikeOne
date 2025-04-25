@@ -157,6 +157,7 @@ def submit():
     id = request.args.get('sql')
     results = []
 
+
     for item in app.jeopardy.stored_answers:
         if id in item:
             print(item)
