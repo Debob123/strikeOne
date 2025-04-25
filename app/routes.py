@@ -84,55 +84,16 @@ def dashboard():
 
 @bp.route('/nohitters/<team>')
 def show_nohitters(team):
-    # Query for won no-hitters with the number of pitchers involved
-    nhQueryWon = text("""
-    SELECT DISTINCT 
-        DATE_FORMAT(STR_TO_DATE(n.date, '%Y%m%d'), '%m/%d/%Y') AS game_date,
-        opp.team_name AS opponent_team,
-        COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
-    FROM nohitter n
-    JOIN teams opp ON n.oppID = opp.teamID
-    WHERE n.teamID = :teamID AND n.team_win = 1
-    GROUP BY n.date, opp.team_name
-    ORDER BY n.date;
-    """)
+    # Use a parameterized query to prevent SQL injection
+    nhQuery = text("SELECT pitcher_id, teamID, oppID, date, site, vishome, p_ipouts, p_bfp, p_h, p_hr, p_r, p_er, p_w, p_k, p_hbp, p_wp, p_gs, p_cg, team_win, yearID FROM nohitter WHERE teamID = :teamID")
+    result = db.session.execute(nhQuery, {'teamID': team})
+    no_hitters_list = result.fetchall()
 
-    # Query for lost no-hitters with the number of pitchers involved
-    nhQueryLost = text("""
-    SELECT DISTINCT 
-        DATE_FORMAT(STR_TO_DATE(n.date, '%Y%m%d'), '%m/%d/%Y') AS game_date,
-        opp.team_name AS opponent_team,
-        COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
-    FROM nohitter n
-    JOIN teams opp ON n.oppID = opp.teamID
-    WHERE n.teamID = :teamID AND n.team_win = 0
-    GROUP BY n.date, opp.team_name
-    ORDER BY n.date;
-    """)
+    teamQuery =  db.session.execute(text('SELECT DISTINCT team_name, t.teamID FROM teams t RIGHT JOIN nohitter nh ON t.teamID = nh.teamID WHERE team_name IS NOT NULL ORDER BY team_name'))
+    teams = [{'name': row.team_name, 'id': row.teamID} for row in teamQuery]
 
-    # Execute both queries
-    resultWon = db.session.execute(nhQueryWon, {'teamID': team})
-    no_hitters_won = resultWon.fetchall()
+    return render_template('nohitters_team.html', no_hitters=no_hitters_list, team=team, teams=teams)
 
-    resultLost = db.session.execute(nhQueryLost, {'teamID': team})
-    no_hitters_lost = resultLost.fetchall()
-
-    # Fetch the team name for display
-    teamQuery = db.session.execute(
-        text("SELECT team_name FROM teams WHERE teamID = :teamID"), {'teamID': team})
-    team_name = teamQuery.fetchone()[0]
-
-    # Fetch all teams for the dropdown or other display
-    teamQueryAll = db.session.execute(
-        text('SELECT DISTINCT team_name, teamID FROM teams ORDER BY team_name'))
-    teams = [{'name': row.team_name, 'id': row.teamID} for row in teamQueryAll]
-
-    return render_template('nohitters_team.html', 
-                           no_hitters_won=no_hitters_won, 
-                           no_hitters_lost=no_hitters_lost, 
-                           team=team, 
-                           teams=teams, 
-                           name=team_name)
 
 
 # Route to display a random trivia question
@@ -168,7 +129,14 @@ def trivia_game():
 
     return render_template('trivia.html', question_text=question_text)
 
-@bp.route('/jeopardy', methods=['GET', 'POST'])
+
+
+@bp.route('/jeopardy')
+@login_required
+def jeopardy_loading():
+    return render_template('jeopardy_loading.html')
+
+@bp.route('/jeopardy/data')
 @login_required
 def jeopardy():
     question = ''
@@ -190,12 +158,12 @@ def jeopardy():
 
 
 
+
 @bp.route('/submitJeopardy')
 def submit():
     answer = request.args.get('answer')
     id = request.args.get('sql')
     results = []
-
 
     for item in app.jeopardy.stored_answers:
         if id in item:

@@ -3,13 +3,18 @@
     <head>
         <title>Baseball Jeopardy</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='styles/jeopardy.css') }}">
-
     </head>
     <body>
-        <h1>⚾ Baseball Jeopardy! 🎯</h1>
+        <!-- Back to Dashboard Button (Top Left) -->
+        <div class="header-container">
+            <button class="back-btn" onclick="window.location.href='/dashboard'">Back to Dashboard</button>
+            <h1>⚾ Baseball Jeopardy! 🎯</h1>
+        </div>
+
+
         <div class="scoreboard">
             <p class="player1">Player 1 Score: <span id="player1-score">0</span></p>
-            <p class = "turn">Turn: <span id="turn">Player 1</span></p>
+            <p class="turn">Turn: <span id="turn">Player 1</span></p>
             <p class="player2">Player 2 Score: <span id="player2-score">0</span></p>
         </div>
 
@@ -68,10 +73,6 @@
                 const input = value.value.trim();
                 const td = button.closest("td");
 
-
-
-                // If sql is a string or list of strings
-
                 fetch(`/submitJeopardy?answer=${encodeURIComponent(input)}&sql=${buttonId}`)
                     .then(res => res.json())
                     .then(data => {
@@ -98,19 +99,16 @@
                             const scoreEl = document.getElementById(`player${player}-score`);
                             if (scoreEl) {
                                 scoreEl.textContent = parseInt(scoreEl.textContent) + points;
-                                console.log("Fuck")
-                                console.log(parts)
-                                console.log(points)
-                                console.log(scoreEl)
                             }
                         }
 
                         td.innerHTML = "";
                         td.appendChild(resultText);
+                        td.style.backgroundColor = "black";
+
                         questionLocked = false;
                     });
             }
-
         </script>
     </body>
 </html>

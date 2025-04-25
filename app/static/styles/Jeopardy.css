@@ -17,6 +17,7 @@ h1 {
     font-size: 3em;
     text-shadow: 2px 2px #000;
     margin-bottom: 10px;
+    text-align: center;
     margin-top: 0.3%;
     color: gold;
 }
@@ -163,6 +164,39 @@ input[type="text"] {
     white-space: nowrap;
 }
 
+/* Styling for Back to Dashboard button */
+/* Container to hold button and heading side by side */
+.header-container {
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    align-items: center;     /* Vertically align the content */
+    position: relative;      /* Needed for absolute positioning of the button */
+    width: 100%;             /* Ensures the container takes up the full width of the screen */
+}
+
+.back-btn {
+    background-color: #ff0000;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: transform 0.3s, background 0.2s;
+
+    position: absolute; /* Keeps the button absolutely positioned */
+
+    left: 1%;            /* Aligns to the far left of the container */
+    width: 10%;
+    margin-top: 0.3%;
+
+}
+
+.back-btn:hover {
+    background-color: #600202;
+}
+
+
 
 
 
@@ -173,14 +207,14 @@ input[type="text"] {
 
 p.result-correct {
     color: #00ff99;
-
+    margin-top: 10%;
     font-size: 2.0em;       /* Increase size (adjust as needed) */
     font-weight: bold;      /* Make it thick/bold */
     text-transform: uppercase; /* Optional: make it ALL CAPS */
 }
 
 p.result-wrong {
-    text-align: center;
+    margin-top: 10%;
     color: #ff4444;
 
     font-size: 2.0em;       /* Increase size (adjust as needed) */

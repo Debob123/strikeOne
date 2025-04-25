@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loading Jeopardy...</title>
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .spinner {
+            font-size: 2em;
+            animation: pulse 1s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="spinner">Loading Baseball Jeopardy...</div>
+
+    <script>
+        fetch("/jeopardy/data")
+            .then(res => res.text())
+            .then(html => {
+                document.open();
+                document.write(html);
+                document.close();
+            });
+    </script>
+</body>
+</html>
