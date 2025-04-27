@@ -97,15 +97,29 @@ def show_nohitters(team):
 
 
 # Route to display a random trivia question
+import random
+
 @bp.route('/trivia', methods=['GET', 'POST'])
 @login_required
 def trivia_game():
+    from app.trivia import Question, generate_incorrect_answers
+
     if request.method == 'POST':
         # Handle answer submission
         user_input = request.form.get('answer', '').strip()
 
-        from app.trivia.question1 import check_answer
-        message = check_answer(user_input)
+        from app.trivia.question1 import check_answer as check_answer_1
+        from app.trivia.question2 import check_answer as check_answer_2
+
+        # Assuming we are checking for questionID 1 or 2
+        question_id = request.form.get('question_id')  # Get the question_id from the form or session
+
+        if question_id == '1':
+            message = check_answer_1(user_input)
+        elif question_id == '2':
+            message = check_answer_2(user_input)
+        else:
+            message = "Invalid question."
 
         flash(message)
         return redirect(url_for('routes.trivia_game'))
@@ -117,17 +131,47 @@ def trivia_game():
         flash('No trivia questions found in the database!', 'danger')
         return redirect(url_for('routes.dashboard'))
 
+    # Generate question based on questionID
     if question.question_id == 1:
         from app.trivia.question1 import generate_question1
-        question_text, error = generate_question1(question.question)
-
+        trivia_question, error = generate_question1(question.question)
+        
         if error:
             flash(error, 'danger')
             return redirect(url_for('routes.dashboard'))
-    else:
-        question_text = question.question
+        
+        question_text = trivia_question.question_text
+        answers = trivia_question.correct_answers
 
-    return render_template('trivia.html', question_text=question_text)
+    elif question.question_id == 2:
+        from app.trivia.question2 import generate_question2
+        trivia_question, error = generate_question2(question.question)
+        
+        if error:
+            flash(error, 'danger')
+            return redirect(url_for('routes.dashboard'))
+        
+        question_text = trivia_question.question_text
+        answers = trivia_question.correct_answers
+    else:
+        trivia_question = question.question
+        answers = []
+
+    if answers:
+        correct_answer = random.choice(answers)
+    else:
+        correct_answer = None
+
+    incorrect_answers = generate_incorrect_answers(answers)
+    if not incorrect_answers:
+        flash("Couldn't generate enough incorrect answers.", 'danger')
+        return redirect(url_for('routes.dashboard'))
+
+    # Shuffle the answers
+    all_answers = incorrect_answers + [correct_answer]  # Combine incorrect answers with correct answer
+    random.shuffle(all_answers)  # Shuffle the combined list
+
+    return render_template('trivia.html', question_text=question_text, correct_answer=correct_answer, incorrect_answers=incorrect_answers, all_answers=all_answers, question_id=question.question_id)
 
 
 

@@ -138,3 +138,27 @@ th {
     text-align: center;
     font-weight: bold;
 }
+
+/* Trivia Game Styling */
+.answer-option {
+    padding: 10px;
+    margin: 5px;
+    background-color: #007BFF; /* Bright blue background */
+    color: white;              /* White text for contrast */
+    border: none;             
+    cursor: pointer;          
+    border-radius: 8px;       /* Rounded corners */
+    text-align: center;       
+    font-weight: bold;        /* Bold text */
+    transition: background-color 0.3s ease; /* Smooth hover transition */
+}
+
+.answer-option:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+
+.result {
+    margin-top: 20px;
+    font-weight: bold;
+}
