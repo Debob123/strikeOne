@@ -2,6 +2,8 @@ from flask import session
 from app import db
 from sqlalchemy import text, func
 import random
+from app.trivia import Question
+
 
 def generate_question1(question_text):
     # Step 1: Find a player who played for at least two different teams
@@ -60,12 +62,33 @@ def generate_question1(question_text):
     # Step 5: Substitute into question text
     rendered_text = question_text.replace("{teamA}", team_name_1).replace("{teamB}", team_name_2)
 
+    # Step 6: Get players who played for both teams
+    query = text('''
+        SELECT nameFirst, nameLast
+        FROM people
+        WHERE playerID IN (
+            SELECT playerID
+            FROM batting
+            WHERE teamID IN (:team_id_1, :team_id_2)
+            GROUP BY playerID
+            HAVING COUNT(DISTINCT teamID) = 2
+        )
+    ''')
+    result = db.session.execute(query, {'team_id_1': team_id_1, 'team_id_2': team_id_2})
+    player_names = result.fetchall()
+
+    # Step 7: Prepare answers list
+    answers = [f"{first} {last}" for first, last in player_names]
+
+    # Step 8: Create and return the Question object
+    trivia_question = Question(rendered_text, answers)
+
     # Optional: Store values in session if needed for answer validation
     session['trivia_answer_playerID'] = random_player_id
     session['trivia_teamA'] = team_id_1
     session['trivia_teamB'] = team_id_2
 
-    return rendered_text, None
+    return trivia_question, None
 
 
 
@@ -114,4 +137,5 @@ def check_answer(user_input):
         return f" Correct! {first_name.title()} {last_name.title()} played for both teams."
     else:
         return f"Incorrect. {first_name.title()} {last_name.title()} did not play for both teams."
+
 

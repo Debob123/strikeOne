@@ -1,3 +1,4 @@
+/* General Styling */
 nav {
     background-color: #333;
     padding: 10px;
@@ -87,4 +88,24 @@ nav {
 
 .dropdown-content::-webkit-scrollbar-thumb:hover {
     background-color: #aaa;
+}
+
+/* Trivia Game Styling */
+.answer-option {
+    padding: 10px;
+    margin: 5px;
+    background-color: #f0f0f0; /* Same color for all answer boxes */
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.answer-option:hover {
+    background-color: #e0e0e0;
+}
+
+.result {
+    margin-top: 20px;
+    font-weight: bold;
 }

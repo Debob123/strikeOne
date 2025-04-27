@@ -88,9 +88,13 @@ def show_nohitters(team):
 
 
 # Route to display a random trivia question
+import random
+
 @bp.route('/trivia', methods=['GET', 'POST'])
 @login_required
 def trivia_game():
+    from app.trivia import Question, generate_incorrect_answers
+
     if request.method == 'POST':
         # Handle answer submission
         user_input = request.form.get('answer', '').strip()
@@ -110,12 +114,31 @@ def trivia_game():
 
     if question.question_id == 1:
         from app.trivia.question1 import generate_question1
-        question_text, error = generate_question1(question.question)
-
+        trivia_question, error = generate_question1(question.question)
+        
         if error:
             flash(error, 'danger')
             return redirect(url_for('routes.dashboard'))
-    else:
-        question_text = question.question
+        
+        question_text = trivia_question.question_text
+        answers = trivia_question.correct_answers
 
-    return render_template('trivia.html', question_text=question_text)
+        if answers:
+            correct_answer = random.choice(answers)
+        else:
+            correct_answer = None
+
+        incorrect_answers = generate_incorrect_answers(answers)
+        if not incorrect_answers:
+            flash("Couldn't generate enough incorrect answers.", 'danger')
+            return redirect(url_for('routes.dashboard'))
+
+        # Shuffle the answers
+        all_answers = incorrect_answers + [correct_answer]  # Combine incorrect answers with correct answer
+        random.shuffle(all_answers)  # Shuffle the combined list
+
+    else:
+        trivia_question = question.question
+        incorrect_answers = []
+
+    return render_template('trivia.html', question_text=question_text, correct_answer=correct_answer, incorrect_answers=incorrect_answers, all_answers=all_answers)
