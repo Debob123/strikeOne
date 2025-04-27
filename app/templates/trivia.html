@@ -6,6 +6,27 @@
     <title>Trivia Game</title>
     <!-- Link to the external CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        // Function to show the result pop-up and redirect
+        function showResult(message) {
+            // Show the alert with the result message
+            alert(message);
+
+            // Redirect the user to the trivia page after a short delay
+            setTimeout(function() {
+                window.location.href = "/trivia_page"; // Adjust the URL if needed
+            }, 1500); // Redirect after 1.5 seconds
+        }
+
+        // Handle clicking on an answer
+        function submitAnswer(option) {
+            var selectedAnswer = option.getAttribute('data-answer');
+            document.getElementById('selected_answer').value = selectedAnswer;
+
+            // Submit the form
+            option.closest('form').submit();
+        }
+    </script>
 </head>
 <body>
     <h1>Trivia Question</h1>
@@ -21,6 +42,8 @@
             {% endfor %}
         </div>
         <input type="hidden" id="selected_answer" name="answer">
+        <!-- Hidden field for question_id -->
+        <input type="hidden" name="question_id" value="{{ question_id }}"> <!-- Add this -->
         <button type="submit" style="display: none;">Submit</button>
     </form>
 
@@ -36,15 +59,12 @@
         {% endwith %}
     </div>
 
-    <script>
-        // Handle clicking on an answer
-        function submitAnswer(option) {
-            var selectedAnswer = option.getAttribute('data-answer');
-            document.getElementById('selected_answer').value = selectedAnswer;
+    {% if result_message %}
+        <script>
+            // Call showResult when the result message is set by Flask
+            showResult("{{ result_message }}");
+        </script>
+    {% endif %}
 
-            // Submit the form
-            option.closest('form').submit();
-        }
-    </script>
 </body>
 </html>

@@ -28,13 +28,13 @@ def import_trivia_questions_from_csv(csv_path):
             reader = csv.DictReader(csvfile)
             for row in reader:
                 try:
-                    # Create a TriviaQuestion instance
                     trivia_question = TriviaQuestion(
-                        question_text=row['question'],
-                        correct_answers=[row['correct_answer1'], row['correct_answer2'], row['correct_answer3']]
+                        question_id=int(row['question_id']),
+                        question=row['question'],
+                        query=row['query']
                     )
 
-                    # Add trivia question to the database (as a model object)
+                    # Add trivia question to the session
                     db.session.add(trivia_question)
                 except Exception as e:
                     print(f"Skipping row due to error: {e}\nRow: {row}")
@@ -47,8 +47,7 @@ def import_trivia_questions_from_csv(csv_path):
         print(f"CSV file not found: {csv_path}")
     except Exception as e:
         print(f"An error occurred while importing data: {e}")
-
-
+        
 def generate_incorrect_answers(correct_answers):
     """
     Generate three incorrect answers by selecting players who are not in the correct answers list.
