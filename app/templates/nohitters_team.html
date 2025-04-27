@@ -1,43 +1,60 @@
-<!-- templates/nohitters_team.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>No-Hitters for {{ team }}</title>
+    <title>No-Hitters for {{ name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     {% include 'dashboard.html' %}
-    <h1>No-Hitters for {{ team }}</h1>
-    {% if no_hitters %}
+    <h1>No-Hitters for {{ name }}</h1>
+
+    {% if no_hitters_won %}
+        <h2>Won No-Hitters</h2>
         <table>
-            <thead>
+            <thead class="won">
                 <tr>
                     <th>Date</th>
-                    <th>Pitcher ID</th>
                     <th>Opponent</th>
-                    <th>Site</th>
-                    <th>IP Outs</th>
-                    <th>Strikeouts</th>
-                    <th>Year</th>
+                    <th>Pitchers Involved</th>
                 </tr>
             </thead>
             <tbody>
-                {% for nh in no_hitters %}
-                    <tr>
-                        <td>{{ nh.date }}</td>
-                        <td>{{ nh.pitcher_id }}</td>
-                        <td>{{ nh.oppID }}</td>
-                        <td>{{ nh.site or 'N/A' }}</td>
-                        <td>{{ nh.p_ipouts }}</td>
-                        <td>{{ nh.p_k }}</td>
-                        <td>{{ nh.yearID }}</td>
+                {% for nh in no_hitters_won %}
+                    <tr class="won"> <!-- Add the 'won' class here -->
+                        <td>{{ nh.game_date }}</td>
+                        <td>{{ nh.opponent_team }}</td>
+                        <td>{{ nh.pitchers_involved }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p>No no-hitters found for this team.</p>
+        <p>No won no-hitters found for this team.</p>
+    {% endif %}
+
+    {% if no_hitters_lost %}
+        <h2>Lost No-Hitters</h2>
+        <table>
+            <thead class="lost">
+                <tr>
+                    <th>Date</th>
+                    <th>Opponent</th>
+                    <th>Pitchers Involved</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nh in no_hitters_lost %}
+                    <tr class="lost"> <!-- Add the 'lost' class here -->
+                        <td>{{ nh.game_date }}</td>
+                        <td>{{ nh.opponent_team }}</td>
+                        <td>{{ nh.pitchers_involved }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No lost no-hitters found for this team.</p>
     {% endif %}
 </body>
 </html>

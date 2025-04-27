@@ -1,3 +1,4 @@
 question_id,question,query
 1,"Which player who has played for the {teamA} and for the {teamB}.","SELECT playerName FROM player_team WHERE teamID IN (SELECT teamID FROM team WHERE teamName = '{teamA}') AND playerID IN (SELECT playerID FROM player_team WHERE teamID IN (SELECT teamID FROM team WHERE teamName = '{teamB}'));"
+
 2,"Which player had the highest batting average for the {team} in {yearID}?","SELECT playerID, (b_H / b_AB) AS batting_average FROM batting JOIN teams ON batting.teamID = teams.teamID WHERE teams.team_name = '{team}' AND batting.yearId = {yearID} AND b_AB > 0 ORDER BY batting_average DESC LIMIT 1;"
