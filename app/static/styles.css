@@ -8,7 +8,6 @@ body {
 }
 
 /* Navigation Bar Styles */
-/* General Styling */
 nav {
     background-color: #333;
     padding: 10px;
@@ -30,11 +29,10 @@ nav {
     background-color: #45a049;
 }
 
+/* Dropdown Menu Styles */
 .dropdown {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
+    position: relative;
+    display: inline-block;
 }
 
 .dropbtn {
@@ -88,4 +86,79 @@ nav {
 
 .dropdown-content::-webkit-scrollbar-thumb:hover {
     background-color: #aaa;
+}
+
+/* Heading Styles */
+h1, h2 {
+    text-align: center;
+    color: #333;
+}
+
+/* General table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+/* Header styling for won games */
+thead.won th {
+    background-color: #4CAF50;  /* Green background */
+    color: white;  /* White text */
+}
+
+/* Header styling for lost games */
+thead.lost th {
+    background-color: #F44336;  /* Red background */
+    color: white;  /* White text */
+}
+
+/* Row styling for won games */
+tr.won {
+    background-color: #DFF0D8;  /* Light green */
+}
+
+/* Row styling for lost games */
+tr.lost {
+    background-color: #FFEBEE;  /* Light red */
+}
+
+
+
+/* Style for the table cells */
+td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+/* General header styling */
+th {
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Trivia Game Styling */
+.answer-option {
+    padding: 10px;
+    margin: 5px;
+    background-color: #007BFF; /* Bright blue background */
+    color: white;              /* White text for contrast */
+    border: none;             
+    cursor: pointer;          
+    border-radius: 8px;       /* Rounded corners */
+    text-align: center;       
+    font-weight: bold;        /* Bold text */
+    transition: background-color 0.3s ease; /* Smooth hover transition */
+}
+
+.answer-option:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+
+.result {
+    margin-top: 20px;
+    font-weight: bold;
 }
