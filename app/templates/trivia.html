@@ -29,6 +29,23 @@
     </script>
 </head>
 <body>
+    <!-- Score Dropdown Button -->
+    <div class="dropdown" id="score-btn">
+        <button class="dropbtn">
+            Score: {{ current_user.score }}
+        </button>
+        <div class="dropdown-content">
+            <a href="#" class="answer-item">
+                <span class="check-mark">✔</span>
+                Correct Answers: {{ current_user.correct_answers }}
+            </a>
+            <a href="#" class="answer-item">
+                <span class="x-mark">❌</span>
+                Wrong Answers: {{ current_user.incorrect_answers }}
+            </a>
+        </div>
+    </div>
+
     <h1>Trivia Question</h1>
     <p>{{ question_text }}</p>
 

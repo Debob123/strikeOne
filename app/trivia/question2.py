@@ -3,6 +3,8 @@ from app import db
 from sqlalchemy import text
 import random
 from app.trivia import Question
+from app.trivia import Question
+from flask_login import current_user
 
 
 import random
@@ -109,6 +111,8 @@ def check_answer(user_input):
 
     # Step 3: Check if the player is the correct one
     if submitted_player_id == correct_player_id:
+        current_user.question_right()
         return f"Correct! {first_name.title()} {last_name.title()} had the highest batting average for the team in the selected year."
     else:
+        current_user.question_wrong()
         return f"Incorrect. {first_name.title()} {last_name.title()} did not have the highest batting average."

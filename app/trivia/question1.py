@@ -2,7 +2,10 @@ from flask import session
 from app import db
 from sqlalchemy import text, func
 import random
+from app.models import User
 from app.trivia import Question
+from flask_login import current_user
+
 
 
 def generate_question1(question_text):
@@ -95,7 +98,8 @@ def generate_question1(question_text):
 def check_answer(user_input):
     if not user_input:
         return "You must enter a player's name."
-
+    
+    user = current_user
     # Split first and last name
     parts = user_input.strip().lower().split()
     if len(parts) != 2:
@@ -134,6 +138,8 @@ def check_answer(user_input):
     teams_played_for = {row[0] for row in result.fetchall()}
 
     if teamA in teams_played_for and teamB in teams_played_for:
+        current_user.question_right()
         return f"Correct! {first_name.title()} {last_name.title()} played for both teams."
     else:
+        current_user.question_wrong()
         return f"Incorrect. {first_name.title()} {last_name.title()} did not play for both teams."
