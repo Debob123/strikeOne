@@ -1,12 +1,9 @@
 from flask import session
 from app import db
 from sqlalchemy import text
-import random
 from app.trivia import Question
 from app.trivia import Question
 from flask_login import current_user
-
-
 import random
 
 def generate_question2(question_text):
