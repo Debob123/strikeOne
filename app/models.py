@@ -51,7 +51,6 @@ class TriviaQuestion(db.Model):
 
     question_id = db.Column(db.Integer, primary_key=True)
     question = db.Column(db.String(255), nullable=False)
-    query = db.Column(db.String(511), nullable=False)
 
     def __repr__(self):
         return f'<TriviaQuestion {self.question_id}>'
