@@ -1,8 +1,7 @@
 import csv
 import os
 import random
-
-from sqlalchemy import text
+from sqlalchemy import text,bindparam
 from app import db                # Lazy import to avoid circular import
 from app.models import TriviaQuestion  # Lazy import to avoid circular import
 
@@ -30,8 +29,7 @@ def import_trivia_questions_from_csv(csv_path):
                 try:
                     trivia_question = TriviaQuestion(
                         question_id=int(row['question_id']),
-                        question=row['question'],
-                        query=row['query']
+                        question=row['question']
                     )
 
                     # Add trivia question to the session
@@ -61,24 +59,46 @@ def generate_incorrect_answers(correct_answers):
     # Step 1: Prepare the correct names in a format suitable for comparison (lowercase)
     correct_names_set = set([name.lower() for name in correct_answers])
 
-    # Step 2: Query the database to find players whose names are not in the correct answers list
-    query = text('''
-        SELECT nameFirst, nameLast
-        FROM people
-        WHERE CONCAT(nameFirst, ' ',nameLast) NOT IN :correct_names
-    ''')
-
-    result = db.session.execute(query, {'correct_names': tuple(correct_names_set)})
-    all_players = result.fetchall()
-
-    if len(all_players) < 3:
-        print("Error: Not enough distinct players to generate incorrect answers.")
+    # Handle the case where no correct answers are provided
+    if len(correct_names_set) < 1:
+        print("Warning: No correct answers provided.")
         return None
 
-    # Step 3: Randomly select 3 distinct incorrect players
+    print(f"Correct names set (lowercase): {correct_names_set}")
+
+    # Step 2: Check if there is only one correct answer or multiple
+    if len(correct_names_set) == 1:
+        print("Notice: Only one correct answer provided.")
+        # If only one correct answer is given, use != in the query
+        query = text('''
+            SELECT nameFirst, nameLast
+            FROM people
+            WHERE LOWER(CONCAT(nameFirst, ' ', nameLast)) != :correct_name
+        ''')
+        result = db.session.execute(query, {"correct_name": list(correct_names_set)[0]})
+    else:
+        # If there are multiple correct answers, use NOT IN
+        query = text('''
+            SELECT nameFirst, nameLast
+            FROM people
+            WHERE LOWER(CONCAT(nameFirst, ' ', nameLast)) NOT IN :correct_names
+        ''')
+        result = db.session.execute(query, {"correct_names": list(correct_names_set)})
+
+    # Fetch all the players from the query result
+    all_players = result.fetchall()
+
+   
+
+    # Step 3: Check if enough players were returned
+    if len(all_players) < 3:
+        print(f"Error: Not enough distinct players to generate incorrect answers. Found {len(all_players)} players.")
+        return None
+
+    # Step 4: Randomly select 3 distinct incorrect players
     incorrect_players = random.sample(all_players, 3)
 
-    # Step 4: Format the incorrect players as "First Last" names
+    # Step 5: Format the incorrect players as "First Last" names
     incorrect_answers = [f"{first} {last}" for first, last in incorrect_players]
 
     return incorrect_answers

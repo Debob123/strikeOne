@@ -98,83 +98,84 @@ def show_nohitters(team):
 
 # Route to display a random trivia question
 import random
-
+from app.trivia import generate_incorrect_answers
 @bp.route('/trivia', methods=['GET', 'POST'])
 @login_required
 def trivia_game():
-    from app.trivia import Question, generate_incorrect_answers
+    # Map question IDs to their respective answer check functions
+    check_answer_map = {
+        '1': lambda ans: __import__('app.trivia.question1', fromlist=['check_answer']).check_answer(ans),
+        '2': lambda ans: __import__('app.trivia.question2', fromlist=['check_answer']).check_answer(ans),
+        '3': lambda ans: __import__('app.trivia.question3', fromlist=['check_answer']).check_answer(ans),
+        '4': lambda ans: __import__('app.trivia.question4', fromlist=['check_answer']).check_answer(ans),
+        '5': lambda ans: __import__('app.trivia.question5', fromlist=['check_answer']).check_answer(ans),
+        '6': lambda ans: __import__('app.trivia.question6', fromlist=['check_answer']).check_answer(ans),
+    }
 
+    # Handle POST: user submitted an answer
     if request.method == 'POST':
-        # Handle answer submission
         user_input = request.form.get('answer', '').strip()
+        question_id = request.form.get('question_id')
 
-        from app.trivia.question1 import check_answer as check_answer_1
-        from app.trivia.question2 import check_answer as check_answer_2
-
-        # Assuming we are checking for questionID 1 or 2
-        question_id = request.form.get('question_id')  # Get the question_id from the form or session
-
-        if question_id == '1':
-            message = check_answer_1(user_input)
-        elif question_id == '2':
-            message = check_answer_2(user_input)
+        check_func = check_answer_map.get(question_id)
+        if check_func:
+            message = check_func(user_input)
         else:
             message = "Invalid question."
 
         flash(message)
         return redirect(url_for('routes.trivia_game'))
 
-    # Otherwise, show a question
-    question = db.session.query(TriviaQuestion).order_by(func.random()).first()
+    # Handle GET: keep retrying until a valid question is generated
+    generate_question_map = {
+        1: lambda q: __import__('app.trivia.question1', fromlist=['generate_question1']).generate_question1(q),
+        2: lambda q: __import__('app.trivia.question2', fromlist=['generate_question2']).generate_question2(q),
+        3: lambda q: __import__('app.trivia.question3', fromlist=['generate_question3']).generate_question3(q),
+        4: lambda q: __import__('app.trivia.question4', fromlist=['generate_question4']).generate_question4(q),
+        5: lambda q: __import__('app.trivia.question5', fromlist=['generate_question5']).generate_question5(q),
+        6: lambda q: __import__('app.trivia.question6', fromlist=['generate_question6']).generate_question6(q),
+    }
 
-    if question is None:
-        flash('No trivia questions found in the database!', 'danger')
-        return redirect(url_for('routes.dashboard'))
+    trivia_question = None
+    error = None
+    question = None
 
-    # Generate question based on questionID
-    if question.question_id == 1:
-        from app.trivia.question1 import generate_question1
-        trivia_question, error = generate_question1(question.question)
-        
-        if error:
-            flash(error, 'danger')
+    while True:
+        question = db.session.query(TriviaQuestion).order_by(func.random()).first()
+
+        if question is None:
+            flash('No trivia questions found in the database!', 'danger')
             return redirect(url_for('routes.dashboard'))
-        
-        question_text = trivia_question.question_text
-        answers = trivia_question.correct_answers
 
-    elif question.question_id == 2:
-        from app.trivia.question2 import generate_question2
-        trivia_question, error = generate_question2(question.question)
-        
-        if error:
-            flash(error, 'danger')
-            return redirect(url_for('routes.dashboard'))
-        
-        question_text = trivia_question.question_text
-        answers = trivia_question.correct_answers
-    else:
-        trivia_question = question.question
-        answers = []
+        generate_func = generate_question_map.get(question.question_id)
+        if not generate_func:
+            continue  # skip invalid ID
 
-    if answers:
-        correct_answer = random.choice(answers)
-    else:
-        correct_answer = None
+        trivia_question, error = generate_func(question.question)
 
+        if not error and trivia_question:
+            break  # success
+
+    question_text = trivia_question.question_text
+    answers = trivia_question.correct_answers
+    correct_answer = random.choice(answers) if answers else None
     incorrect_answers = generate_incorrect_answers(answers)
+
     if not incorrect_answers:
         flash("Couldn't generate enough incorrect answers.", 'danger')
         return redirect(url_for('routes.dashboard'))
 
-    # Shuffle the answers
-    all_answers = incorrect_answers + [correct_answer]  # Combine incorrect answers with correct answer
-    random.shuffle(all_answers)  # Shuffle the combined list
+    all_answers = incorrect_answers + [correct_answer]
+    random.shuffle(all_answers)
 
-    return render_template('trivia.html', question_text=question_text, correct_answer=correct_answer, incorrect_answers=incorrect_answers, all_answers=all_answers, question_id=question.question_id)
-
-
-
+    return render_template(
+        'trivia.html',
+        question_text=question_text,
+        correct_answer=correct_answer,
+        incorrect_answers=incorrect_answers,
+        all_answers=all_answers,
+        question_id=question.question_id
+    )
 @bp.route('/jeopardy')
 @login_required
 def jeopardy_loading():

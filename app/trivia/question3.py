@@ -2,11 +2,10 @@ from flask import session
 from app import db
 from sqlalchemy import text
 from app.trivia import Question
-from app.trivia import Question
 from flask_login import current_user
 import random
 
-def generate_question2(question_text):
+def generate_question3(question_text):
     # Step 1: Pick a random team and year from the database
     query = text('''
         SELECT DISTINCT team_name, yearID
@@ -24,25 +23,25 @@ def generate_question2(question_text):
 
     team_name, yearID = team_data
 
-    # Step 2: Find the player with the highest batting average for the randomly selected team and year
+    # Step 2: Find the player with the most home runs for that team and year
     query = text('''
-        SELECT playerID, (b_H / b_AB) AS batting_average 
+        SELECT playerID, b_HR 
         FROM batting 
         JOIN teams ON batting.teamID = teams.teamID 
         WHERE teams.team_name = :team
         AND batting.yearID = :yearID
-        AND b_AB > 0 
-        ORDER BY batting_average DESC LIMIT 1;
+        ORDER BY b_HR DESC
+        LIMIT 1;
     ''')
     result = db.session.execute(query, {'team': team_name, 'yearID': yearID})
     player_data = result.fetchone()
 
     if not player_data:
-        print("Error: Couldn't find a player with the highest batting average.")
-        return None, "Couldn't find a player with the highest batting average."
+        print("Error: Couldn't find a player with the most home runs.")
+        return None, "Couldn't find a player with the most home runs."
 
     player_id = player_data[0]
-    batting_average = player_data[1]
+    home_runs = player_data[1]
 
     # Step 3: Get the player's name
     query = text('''
@@ -68,11 +67,10 @@ def generate_question2(question_text):
     # Step 6: Create and return the Question object
     trivia_question = Question(rendered_text, answers)
 
-    # Optional: Store values in session if needed for answer validation
+    # Optional: Store playerID in session for answer validation
     session['trivia_answer_playerID'] = player_id
 
     return trivia_question, None
-
 
 
 def check_answer(user_input):
@@ -86,7 +84,7 @@ def check_answer(user_input):
 
     first_name, last_name = parts
 
-    # Step 1: Find the playerID that matches the given name
+    # Step 1: Find playerID for the submitted answer
     query = text('''
         SELECT playerID
         FROM people
@@ -100,16 +98,17 @@ def check_answer(user_input):
 
     submitted_player_id = row[0]
 
-    # Step 2: Get the playerID stored in session
+    # Step 2: Retrieve correct playerID from session
     correct_player_id = session.get('trivia_answer_playerID')
 
     if not correct_player_id:
         return "Session expired or invalid question context. Please try again."
 
-    # Step 3: Check if the player is the correct one
+    # Step 3: Compare playerIDs
     if submitted_player_id == correct_player_id:
         current_user.question_right()
-        return f"Correct! {first_name.title()} {last_name.title()} had the highest batting average for the team in the selected year."
+        return f"Correct! {first_name.title()} {last_name.title()} hit the most home runs for the team in the selected year."
     else:
         current_user.question_wrong()
-        return f"Incorrect. {first_name.title()} {last_name.title()} did not have the highest batting average."
+        return f"Incorrect. {first_name.title()} {last_name.title()} did not hit the most home runs."
+
