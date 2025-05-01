@@ -1,7 +1,8 @@
 question_id,question
-1,"Which player who has played for the {teamA} and for the {teamB}."
+1,"Which player has played for the {teamA} and for the {teamB}."
 2,"Which player had the highest batting average for the {team} in {yearID}?"
 3,"Which player hit the most home runs for the {team} in {yearID}?"
 4,"Which player played for the {team} and won the {award}?"
 5,"Which player played for the {team} and was born in {birthPlace}?"
 6,"Which player has the same birthday as {player}?"
+7,"Which player made ${salary} in {yearID}?"
