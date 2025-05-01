@@ -29,8 +29,7 @@ def import_trivia_questions_from_csv(csv_path):
                 try:
                     trivia_question = TriviaQuestion(
                         question_id=int(row['question_id']),
-                        question=row['question'],
-                        query=row['query']
+                        question=row['question']
                     )
 
                     # Add trivia question to the session
