@@ -5,39 +5,81 @@ from app.trivia import Question
 from flask_login import current_user
 
 def generate_question4(question_text):
-    # Step 1: Pick a random player who won an award and played for a team in a specific year
-    query = text('''
-        SELECT DISTINCT p.playerID, p.nameFirst, p.nameLast, a.awardID, t.team_Name, a.yearID
-        FROM people p
-        JOIN awards a ON p.playerID = a.playerID
-        JOIN batting b ON p.playerID = b.playerID
-        JOIN teams t ON b.teamID = t.teamID AND b.yearID = a.yearID
-        WHERE a.yearID = b.yearID
+    # Step 1: Pick a random award
+    award_query = text('''
+        SELECT DISTINCT awardID FROM awards
         ORDER BY RAND()
-        LIMIT 1;
+        LIMIT 1
     ''')
+    award_result = db.session.execute(award_query).fetchone()
+    if not award_result:
+        return None, "No awards found."
 
-    result = db.session.execute(query)
-    data = result.fetchone()
+    award_name = award_result[0]
 
-    if not data:
-        print("Error: Couldn't find a player with an award and a team.")
-        return None, "Couldn't find a player with an award and a team."
+    # Step 2: Pick a random player who won that award
+    player_query = text('''
+        SELECT a.playerID, p.nameFirst, p.nameLast
+        FROM awards a
+        JOIN people p ON a.playerID = p.playerID
+        WHERE a.awardID = :award_name
+        ORDER BY RAND()
+        LIMIT 1
+    ''')
+    player_result = db.session.execute(player_query, {'award_name': award_name}).fetchone()
+    if not player_result:
+        return None, "No player found who won that award."
 
-    player_id, first_name, last_name, award_id, team_name, year_id = data
+    player_id, first_name, last_name = player_result
 
-    # Step 2: Fill in the question template
-    rendered_text = question_text.replace("{team}", team_name).replace("{award}", award_id)
+    # Step 3: Pick a team that the player played on
+    team_query = text('''
+        SELECT DISTINCT teamID FROM batting
+        WHERE playerID = :player_id
+        ORDER BY RAND()
+        LIMIT 1
+    ''')
+    team_result = db.session.execute(team_query, {'player_id': player_id}).fetchone()
+    if not team_result:
+        return None, "No team found for that player."
 
-    # Step 3: Create answers list
-    answers = [f"{first_name} {last_name}"]
+    team_id = team_result[0]
 
-    # Step 4: Create Question object
+    # Step 4: Convert team ID to team name (corrected column name here)
+    team_name_query = text('''
+        SELECT team_name FROM teams
+        WHERE teamID = :team_id
+        ORDER BY yearID DESC
+        LIMIT 1
+    ''')
+    team_name_result = db.session.execute(team_name_query, {'team_id': team_id}).fetchone()
+    if not team_name_result:
+        return None, "Team name not found."
+
+    team_name = team_name_result[0]
+
+    # Step 5: Build list of all players who won that award and played on that team
+    all_answers_query = text('''
+        SELECT DISTINCT p.nameFirst, p.nameLast
+        FROM people p
+        JOIN awards a ON a.playerID = p.playerID
+        JOIN batting b ON b.playerID = p.playerID
+        WHERE a.awardID = :award_name AND b.teamID = :team_id
+    ''')
+    answer_results = db.session.execute(all_answers_query, {'award_name': award_name, 'team_id': team_id}).fetchall()
+    if not answer_results:
+        return None, "No players matched for answer choices."
+
+    answers = [f"{row[0]} {row[1]}" for row in answer_results]
+
+    # Step 6: Store correct answer context
+    session['trivia_answer_award'] = award_name
+    session['trivia_answer_team'] = team_name
+    session['trivia_answer_teamID'] = team_id
+
+    # Step 7: Render and return the question
+    rendered_text = question_text.replace("{award}", award_name).replace("{team}", team_name)
     trivia_question = Question(rendered_text, answers)
-
-    # Step 5: Store correct player in session
-    session['trivia_answer_playerID'] = player_id
-
     return trivia_question, None
 
 
@@ -51,77 +93,56 @@ def check_answer(user_input):
 
     first_name, last_name = parts
 
-    # Step 1: Look up player ID
-    query = text('''
-        SELECT playerID
-        FROM people
+    # Step 1: Get playerID
+    player_query = text('''
+        SELECT playerID FROM people
         WHERE LOWER(nameFirst) = :first_name AND LOWER(nameLast) = :last_name
     ''')
-    result = db.session.execute(query, {'first_name': first_name, 'last_name': last_name})
-    row = result.fetchone()
-
-    if not row:
+    result = db.session.execute(player_query, {
+        'first_name': first_name,
+        'last_name': last_name
+    }).fetchone()
+    if not result:
         return f"No player found with the name {first_name.title()} {last_name.title()}."
 
-    submitted_player_id = row[0]
+    submitted_player_id = result[0]
 
-    # Step 2: Get correct answer from session
-    correct_player_id = session.get('trivia_answer_playerID')
+    # Step 2: Get question context
+    award_name = session.get('trivia_answer_award')
+    team_id = session.get('trivia_answer_teamID')
+    team_name = session.get('trivia_answer_team')
 
-    if not correct_player_id:
-        return "Session expired or invalid question context. Please try again."
+    if not award_name or not team_id or not team_name:
+        return "Session expired or missing question data. Please try again."
 
-    # Step 3: Compare
-    if submitted_player_id == correct_player_id:
-        current_user.question_right()
-        return f"Correct! {first_name.title()} {last_name.title()} won the {award_id} award while playing for {team_name} in {year_id}."
-    else:
-        current_user.question_wrong()
-        return f"Incorrect. {first_name.title()} {last_name.title()} was not the award-winning player in question."
-
-
-
-def check_answer(user_input):
-    if not user_input:
-        return "You must enter a player's name."
-
-    parts = user_input.strip().lower().split()
-    if len(parts) != 2:
-        return "Please enter both a first and last name."
-
-    first_name, last_name = parts
-
-    # Step 1: Look up player ID
-    query = text('''
-        SELECT playerID, nameFirst, nameLast
-        FROM people
-        WHERE LOWER(nameFirst) = :first_name AND LOWER(nameLast) = :last_name
+    # Step 3: Verify player won the award
+    award_check_query = text('''
+        SELECT 1 FROM awards
+        WHERE playerID = :player_id AND awardID = :award_name
+        LIMIT 1
     ''')
-    result = db.session.execute(query, {'first_name': first_name, 'last_name': last_name})
-    row = result.fetchone()
-
-    if not row:
-        return f"No player found with the name {first_name.title()} {last_name.title()}."
-
-    submitted_player_id, db_first_name, db_last_name = row
-
-    # Step 2: Get correct answer details from session
-    correct_answer = session.get('trivia_answer')
-    
-    if not correct_answer:
-        return "Session expired or invalid question context. Please try again."
-
-    correct_player_id = correct_answer.get('player_id')
-    correct_award = correct_answer.get('award')
-    correct_team = correct_answer.get('team')
-
-    if not correct_player_id or not correct_award or not correct_team:
-        return "Session expired or invalid question context. Please try again."
-
-    # Step 3: Compare player ID and award/team
-    if submitted_player_id == correct_player_id:
-        current_user.question_right()
-        return f"Correct! {db_first_name.title()} {db_last_name.title()} won the {correct_award} award while playing for {correct_team}."
-    else:
+    award_check = db.session.execute(award_check_query, {
+        'player_id': submitted_player_id,
+        'award_name': award_name
+    }).fetchone()
+    if not award_check:
         current_user.question_wrong()
-        return f"Incorrect. {db_first_name.title()} {db_last_name.title()} was not the award-winning player in question."
+        return f"Incorrect. This player did not win the {award_name} award."
+
+    # Step 4: Verify player played for the team
+    team_check_query = text('''
+        SELECT 1 FROM batting
+        WHERE playerID = :player_id AND teamID = :team_id
+        LIMIT 1
+    ''')
+    team_check = db.session.execute(team_check_query, {
+        'player_id': submitted_player_id,
+        'team_id': team_id
+    }).fetchone()
+    if not team_check:
+        current_user.question_wrong()
+        return f"Incorrect. This player did not play for the {team_name}."
+
+    # Step 5: If both match, correct
+    current_user.question_right()
+    return f"Correct! This player won the {award_name} while playing for {team_name}."
