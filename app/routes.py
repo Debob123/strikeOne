@@ -110,6 +110,7 @@ def trivia_game():
 
         from app.trivia.question1 import check_answer as check_answer_1
         from app.trivia.question2 import check_answer as check_answer_2
+        from app.trivia.question3 import check_answer as check_answer_3
 
         # Assuming we are checking for questionID 1 or 2
         question_id = request.form.get('question_id')  # Get the question_id from the form or session
@@ -118,6 +119,8 @@ def trivia_game():
             message = check_answer_1(user_input)
         elif question_id == '2':
             message = check_answer_2(user_input)
+        elif question_id == '3':
+            message = check_answer_3(user_input)
         else:
             message = "Invalid question."
 
@@ -135,27 +138,62 @@ def trivia_game():
     if question.question_id == 1:
         from app.trivia.question1 import generate_question1
         trivia_question, error = generate_question1(question.question)
-        
+
+        # Debugging: Print the results of generate_question1
+        print(f"Question ID 1: trivia_question={trivia_question}, error={error}")
+
         if error:
             flash(error, 'danger')
             return redirect(url_for('routes.dashboard'))
-        
+
         question_text = trivia_question.question_text
         answers = trivia_question.correct_answers
 
+        # Debugging: Print the final question text and answers for question 1
+        print(f"Question text: {question_text}")
+        print(f"Answers: {answers}")
     elif question.question_id == 2:
         from app.trivia.question2 import generate_question2
         trivia_question, error = generate_question2(question.question)
-        
+
+        # Debugging: Print the results of generate_question2
+        print(f"Question ID 2: trivia_question={trivia_question}, error={error}")
+
         if error:
             flash(error, 'danger')
             return redirect(url_for('routes.dashboard'))
-        
+
         question_text = trivia_question.question_text
         answers = trivia_question.correct_answers
+
+        # Debugging: Print the final question text and answers for question 2
+        print(f"Question text: {question_text}")
+        print(f"Answers: {answers}")
+
+    elif question.question_id == 3:
+        from app.trivia.question3 import generate_question3
+        trivia_question, error = generate_question3(question.question)
+
+         # Debugging: Print the results of generate_question3
+        print(f"Question ID 3: trivia_question={trivia_question}, error={error}")
+
+        if error:
+            flash(error, 'danger')
+            return redirect(url_for('routes.dashboard'))
+
+        question_text = trivia_question.question_text
+        answers = trivia_question.correct_answers
+
+        # Debugging: Print the final question text and answers for question 3
+        print(f"Question text: {question_text}")
+        print(f"Answers: {answers}")
+
     else:
-        trivia_question = question.question
-        answers = []
+         trivia_question = question.question
+         answers = []
+
+    # Debugging: Print for the default case (no question_id match)
+    print(f"Default case: trivia_question={trivia_question}, answers={answers}")
 
     if answers:
         correct_answer = random.choice(answers)
