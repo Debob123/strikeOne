@@ -111,6 +111,7 @@ def trivia_game():
         from app.trivia.question1 import check_answer as check_answer_1
         from app.trivia.question2 import check_answer as check_answer_2
         from app.trivia.question3 import check_answer as check_answer_3
+        from app.trivia.question4 import check_answer as check_answer_4
 
         # Assuming we are checking for questionID 1 or 2
         question_id = request.form.get('question_id')  # Get the question_id from the form or session
@@ -121,6 +122,8 @@ def trivia_game():
             message = check_answer_2(user_input)
         elif question_id == '3':
             message = check_answer_3(user_input)
+        elif question_id == '4':
+            message = check_answer_4(user_input)
         else:
             message = "Invalid question."
 
@@ -176,6 +179,24 @@ def trivia_game():
 
          # Debugging: Print the results of generate_question3
         print(f"Question ID 3: trivia_question={trivia_question}, error={error}")
+
+        if error:
+            flash(error, 'danger')
+            return redirect(url_for('routes.dashboard'))
+
+        question_text = trivia_question.question_text
+        answers = trivia_question.correct_answers
+
+        # Debugging: Print the final question text and answers for question 3
+        print(f"Question text: {question_text}")
+        print(f"Answers: {answers}")
+
+    elif question.question_id == 4:
+        from app.trivia.question4 import generate_question4
+        trivia_question, error = generate_question4(question.question)
+
+         # Debugging: Print the results of generate_question3
+        print(f"Question ID 4: trivia_question={trivia_question}, error={error}")
 
         if error:
             flash(error, 'danger')
