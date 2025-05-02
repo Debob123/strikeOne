@@ -98,21 +98,34 @@ def show_nohitters(team):
 
 # Route to display a random trivia question
 import random
-from app.trivia import generate_incorrect_answers
+from sqlalchemy.sql import func
+from app.models import TriviaQuestion
+from app.trivia import generate_incorrect_answers, question1, question2, question3, question4, question5, question6, question7, question8
 @bp.route('/trivia', methods=['GET', 'POST'])
 @login_required
 def trivia_game():
-    # Map question IDs to their respective answer check functions
     check_answer_map = {
-        '1': lambda ans: __import__('app.trivia.question1', fromlist=['check_answer']).check_answer(ans),
-        '2': lambda ans: __import__('app.trivia.question2', fromlist=['check_answer']).check_answer(ans),
-        '3': lambda ans: __import__('app.trivia.question3', fromlist=['check_answer']).check_answer(ans),
-        '4': lambda ans: __import__('app.trivia.question4', fromlist=['check_answer']).check_answer(ans),
-        '5': lambda ans: __import__('app.trivia.question5', fromlist=['check_answer']).check_answer(ans),
-        '6': lambda ans: __import__('app.trivia.question6', fromlist=['check_answer']).check_answer(ans),
+        '1': question1.check_answer,
+        '2': question2.check_answer,
+        '3': question3.check_answer,
+        '4': question4.check_answer,
+        '5': question5.check_answer,
+        '6': question6.check_answer,
+        '7': question7.check_answer,
+        '8': question8.check_answer,
     }
 
-    # Handle POST: user submitted an answer
+    generate_question_map = {
+        1: question1.generate_question1,
+        2: question2.generate_question2,
+        3: question3.generate_question3,
+        4: question4.generate_question4,
+        5: question5.generate_question5,
+        6: question6.generate_question6,
+        7: question7.generate_question7,
+        8: question8.generate_question8,
+    }
+
     if request.method == 'POST':
         user_input = request.form.get('answer', '').strip()
         question_id = request.form.get('question_id')
@@ -126,42 +139,31 @@ def trivia_game():
         flash(message)
         return redirect(url_for('routes.trivia_game'))
 
-    # Handle GET: keep retrying until a valid question is generated
-    generate_question_map = {
-        1: lambda q: __import__('app.trivia.question1', fromlist=['generate_question1']).generate_question1(q),
-        2: lambda q: __import__('app.trivia.question2', fromlist=['generate_question2']).generate_question2(q),
-        3: lambda q: __import__('app.trivia.question3', fromlist=['generate_question3']).generate_question3(q),
-        4: lambda q: __import__('app.trivia.question4', fromlist=['generate_question4']).generate_question4(q),
-        5: lambda q: __import__('app.trivia.question5', fromlist=['generate_question5']).generate_question5(q),
-        6: lambda q: __import__('app.trivia.question6', fromlist=['generate_question6']).generate_question6(q),
-    }
-
-    trivia_question = None
-    error = None
-    question = None
-
-    while True:
+    # GET request: fetch a valid question
+    for _ in range(10):  # avoid infinite loop
         question = db.session.query(TriviaQuestion).order_by(func.random()).first()
 
-        if question is None:
+        if not question:
             flash('No trivia questions found in the database!', 'danger')
             return redirect(url_for('routes.dashboard'))
 
         generate_func = generate_question_map.get(question.question_id)
         if not generate_func:
-            continue  # skip invalid ID
+            continue
 
         trivia_question, error = generate_func(question.question)
-
         if not error and trivia_question:
-            break  # success
+            break
+    else:
+        flash('Failed to generate a trivia question.', 'danger')
+        return redirect(url_for('routes.dashboard'))
 
     question_text = trivia_question.question_text
     answers = trivia_question.correct_answers
     correct_answer = random.choice(answers) if answers else None
     incorrect_answers = generate_incorrect_answers(answers)
 
-    if not incorrect_answers:
+    if not incorrect_answers or not correct_answer:
         flash("Couldn't generate enough incorrect answers.", 'danger')
         return redirect(url_for('routes.dashboard'))
 
