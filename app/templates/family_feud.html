@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Family Feud</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/family_feud.css') }}">
+</head>
+<body>
+    <!-- back to dashboard button -->
+    <div class="header-container">
+        <button class="back-btn" onclick="window.location.href='/dashboard'">
+            Back to Dashboard
+        </button>
+        <h1> Family Feud </h1>
+    </div>
+
+    <div class="feud-question">
+        <h2 id="ff-question">{{ question }}</h2>
+    </div>
+
+    <!-- making the tiles for the answers -->
+    <div class="feud-answers">
+        {% for answer, points in answers %}
+        <div class="answer-tile" data-points="{{ points }}">
+            <div class="tile-number">{{ loop.index }}</div>
+            <div class="tile-text hidden">{{ answer }}</div>
+            <div class="tile-points hidden">{{ points }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- scoreboard -->
+    <div class="feud-scoreboard">
+        <div class="team" id="team1">
+            <h3>Team 1</h3>
+            <div class="team-score" id="score1">0</div>
+        </div>
+        <div class="team" id="team2">
+            <h3>Team 2</h3>
+            <div class="team-score" id="score2">0</div>
+        </div>
+    </div>
+
+    <!-- some buttons and place to guess -->
+    <div class="feud-controls">
+        <button id="reset-btn">Reset Board</button>
+    </div>
+    <div class="feud-guess">
+        <input type="text" id="guess-input" placeholder="Type your guess here…" />
+        <button id="submit-guess-btn">Submit Guess</button>
+    </div>
+
+    <!-- tells you if you got it right or wrong -->
+    <p id="feedback" class="feedback"></p>
+
+    <!-- making the game actually work -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tiles       = Array.from(document.querySelectorAll('.answer-tile'));
+  const guessInput  = document.getElementById('guess-input');
+  const submitBtn   = document.getElementById('submit-guess-btn');
+  const resetBtn    = document.getElementById('reset-btn');
+  const feedback    = document.getElementById('feedback');
+  const scoreEls    = {
+    1: document.getElementById('score1'),
+    2: document.getElementById('score2')
+  };
+  let activeTeam    = 1;
+  // had to stop the game from going on forever because I didn't know the answers
+  let guessCount    = 0;
+  const MAX_GUESSES = 10;
+
+  function revealTile(tile) {
+    tile.classList.add('revealed');
+    tile.querySelector('.tile-text').classList.remove('hidden');
+    tile.querySelector('.tile-points').classList.remove('hidden');
+  }
+
+  // getting the guess
+  submitBtn.addEventListener('click', () => {
+    const guess = guessInput.value.trim().toLowerCase();
+    guessInput.value = '';
+    if (!guess || guessCount >= MAX_GUESSES) return;
+
+    guessCount++;
+
+    // trying to find a match
+    const match = tiles.find(t =>
+      !t.classList.contains('revealed') &&
+      t.querySelector('.tile-text').textContent.trim().toLowerCase() === guess
+    );
+
+    if (match) {
+      // decided to make team stay the same if correct
+      const pts = parseInt(match.getAttribute('data-points'), 10);
+      revealTile(match);
+      scoreEls[activeTeam].textContent =
+        +scoreEls[activeTeam].textContent + pts;
+      feedback.textContent = `Correct! Team ${activeTeam} +${pts} points.`;
+    } else {
+      // and switch teams if wrong
+      activeTeam = activeTeam === 1 ? 2 : 1;
+      feedback.textContent = `Wrong! Now it's Team ${activeTeam}'s turn.`;
+    }
+
+    // end the game if they're taking too long
+    if (guessCount >= MAX_GUESSES) {
+      feedback.textContent += " 10 guesses up—here are all the answers!";
+      tiles.forEach(t => {
+        if (!t.classList.contains('revealed')) {
+          revealTile(t);
+        }
+      });
+      submitBtn.disabled = true;
+      guessInput.disabled = true;
+    }
+  });
+
+  // start over
+  resetBtn.addEventListener('click', () => {
+    tiles.forEach(t => {
+      t.classList.remove('revealed');
+      t.querySelector('.tile-text').classList.add('hidden');
+      t.querySelector('.tile-points').classList.add('hidden');
+    });
+    guessCount    = 0;
+    activeTeam    = 1;
+    scoreEls[1].textContent = '0';
+    scoreEls[2].textContent = '0';
+    feedback.textContent     = '';
+    submitBtn.disabled      = false;
+    guessInput.disabled     = false;
+  });
+});
+</script>
+
+</body>
+</html>

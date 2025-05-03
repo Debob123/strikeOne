@@ -11,6 +11,8 @@ from app.jeopardy import stored_answers
 from app.models import User, NoHitter, TriviaQuestion
 import app.jeopardy
 from app.forms import LoginForm, RegistrationForm
+from app.family_feud import generate_feud_round
+
 
 from app.forms import LoginForm, RegistrationForm  # created form
 from app.models import User
@@ -221,3 +223,14 @@ def submit():
     correct = answer.strip().lower() in [str(r).strip().lower() for r in results]
 
     return jsonify({"result": "Correct" if correct else "Wrong"})
+
+
+@bp.route('/familyFeud')
+@login_required
+def family_feud():
+    question, answers = generate_feud_round()
+    return render_template(
+        'family_feud.html',
+        question=question,
+        answers=answers
+    )
