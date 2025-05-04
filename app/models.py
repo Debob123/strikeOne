@@ -16,8 +16,14 @@ class User(db.Model):
     is_anonymous = db.Column(db.Boolean, default=False)  # Default to False for non-anonymous users
     is_banned = db.Column(db.Boolean, default=False, nullable=False)
     
+    # New fields for tracking score and answers
+    score = db.Column(db.Integer, default=0)  # Store the score of the user
+    correct_answers = db.Column(db.Integer, default=0)  # Store the number of correct answers
+    incorrect_answers = db.Column(db.Integer, default=0)  # Store the number of incorrect answers
+
     def get_id(self):
-        return str(self.LoginID) 
+        return str(self.LoginID)
+
     def __repr__(self):
         return f'<User {self.username}>'
     
@@ -29,12 +35,22 @@ class User(db.Model):
         """Check if the provided password matches the stored hash."""
         return bcrypt.check_password_hash(self.password, password)
     
+    def question_right(self):
+        self.correct_answers += 1
+        self.score += 400
+        db.session.commit()
+
+    def question_wrong(self):
+        self.incorrect_answers += 1
+        self.score -= 100
+        db.session.commit()
+    
+    
 class TriviaQuestion(db.Model):
     __tablename__ = 'trivia_questions'
 
     question_id = db.Column(db.Integer, primary_key=True)
     question = db.Column(db.String(255), nullable=False)
-    query = db.Column(db.String(255), nullable=False)
 
     def __repr__(self):
         return f'<TriviaQuestion {self.question_id}>'
