@@ -1,0 +1,67 @@
+
+/* Centering the content and adding some padding */
+.wrapper {
+    max-width: 1200px; /* Adjust width to avoid large tables going off-screen */
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.6); /* Transparent black background for contrast */
+    border-radius: 10px;
+}
+
+/* Heading Styles */
+h1, h2 {
+    text-align: center;
+    color: #fff;  /* White color for text */
+    margin-bottom: 20px;
+}
+
+/* General table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 8px; /* Optional: Rounded corners */
+    overflow: hidden; /* Prevents content from spilling over */
+}
+
+/* Header styling for won games */
+thead.won th {
+    background-color: #4CAF50;  /* Green background */
+    color: #fff;  /* White text */
+}
+
+/* Header styling for lost games */
+thead.lost th {
+    background-color: #F44336;  /* Red background */
+    color: #fff;  /* White text */
+}
+
+/* Row styling for won games */
+tr.won {
+    background-color: #DFF0D8;  /* Light green */
+}
+
+/* Row styling for lost games */
+tr.lost {
+    background-color: #FFEBEE;  /* Light red */
+}
+
+/* Style for the table cells */
+td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+    color: #333;  /* Dark gray text */
+}
+
+/* General header styling */
+th {
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    color: #333;  /* Dark gray text */
+}
+
+/* Wrapper for table */
+.table-wrapper {
+    overflow-x: auto; /* Allows scrolling if table is too wide */
+}
