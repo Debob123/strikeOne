@@ -41,7 +41,6 @@ source project_env/bin/activate
 4. **Install the dependencies**
 ```bash
 pip install -r requirements.txt
-```
 
 5. **Set the FLASK_APP environment variable:
 ```bash
