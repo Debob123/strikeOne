@@ -49,5 +49,6 @@ export FLASK_APP=run.py
 ```
 
 6. **Running the flask development server
+```bash
 flask run
 ```
