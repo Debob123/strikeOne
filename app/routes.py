@@ -234,6 +234,7 @@ def jeopardy():
     question = ''
     sql = ''
     app.jeopardy.stored_answers = []
+    app.jeopardy.categories =  app.jeopardy.store_question_answers()
     questions_text= generate_questions()
 
     print(str(questions_text))
