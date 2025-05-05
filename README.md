@@ -43,10 +43,9 @@ source project_env/bin/activate
 pip install -r requirements.txt
 ```
 
-## Usage
-
-Once the virtual environment is activated and dependencies are installed, you can start working on your project within this environment. Remember to deactivate the virtual environment once you're done:
-
+5. **Set the FLASK_APP environment variable:
 ```bash
-deactivate
-```
+export FLASK_APP=run.py
+
+6. **Running the flask development server
+flask run 
