@@ -61,3 +61,10 @@ flask run
    - Username: 'Admin'
    - Password: 'Password'
      
+
+2. **Divisions Extended**
+
+- The divisions table now displays the teams and their divisions
+- division_stint attribute number describes how many times the team switched divisions. If a division has a value of 2, hat means it's been in 2 divisions in its lifetime in baseball.
+
+
