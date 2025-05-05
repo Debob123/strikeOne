@@ -1,0 +1,104 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: url("../imgs/ath.jpg") no-repeat left center;
+    background-size: cover;
+    font-family: "Open Sans", sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.admin-container {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    display: flex;
+    align-items: flex-start;
+    padding: 3rem;
+    height: 100vh;
+    display: flex;
+}
+
+.admin-table {
+    backdrop-filter: blur(12px);
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 12px;
+    max-height: 90vh;
+    width: 450px;
+    border: 2px solid white;
+}
+
+.admin-title {
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table th, .user-table td {
+    border: 2px solid white;
+    padding: 8px 12px;
+    text-align: center;
+    color: white;
+}
+
+.user-table th {
+    background-color: rgba(0, 0, 0, 0.6);
+    font-weight: bold;
+}
+
+.ban-btn {
+    padding: 6px 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.ban-btn:hover {
+    background-color: #a32f25;
+}
+
+.logout-button {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    padding: 8px 14px;
+    background-color: red;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.logout-button:hover {
+    background-color: white;
+    color: black;
+}
+
+.alert {
+    padding: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.alert-danger {
+    background-color: rgba(255, 80, 80, 0.3);
+    border-left: 4px solid #f44336;
+    border-right: 4px solid #f44336;
+    color: indianred;
+}

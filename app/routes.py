@@ -40,6 +40,8 @@ def login():
                 flash('Your account has been banned. Contact an administrator.', 'danger')
                 return redirect(url_for('routes.login'))
             login_user(user)
+            if user.is_admin:
+                return redirect(url_for('routes.admin_dashboard'))
             return redirect(url_for('routes.dashboard'))  # Redirect to dashboard after login
         else:
             flash('Invalid username or password.', 'danger')
@@ -277,3 +279,28 @@ def family_feud():
         question=question,
         answers=answers
     )
+
+@bp.route('/admin')
+@login_required
+def admin_dashboard():
+    if not current_user.is_admin:
+        return redirect(url_for('routes.dashboard'))
+
+    users = User.query.all()
+    return render_template('admin_dashboard.html', users=users)
+
+@bp.route('/admin/ban/<int:user_id>', methods=['POST'])
+@login_required
+def ban_user(user_id):
+    if not current_user.is_admin:
+        return redirect(url_for('routes.dashboard'))
+
+    user = User.query.get(user_id)
+    if user.is_admin:
+        flash('Cannot ban an admin.', 'danger')
+    else:
+        user.is_banned = True
+        db.session.commit()
+        flash(f"Banned user: {user.username}", 'success')
+
+    return redirect(url_for('routes.admin_dashboard'))
