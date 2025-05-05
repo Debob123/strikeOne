@@ -52,3 +52,12 @@ export FLASK_APP=run.py
 ```bash
 flask run
 ```
+
+## Additional Info
+
+1. **Admin information**
+   - The information is preloaded into the database so you DO NOT need to register the admin account in the registration page. To log in as an admin, enter the admin username and password into the login page. These can be found below
+     
+   - Username: 'Admin'
+   - Password: 'Password'
+     
