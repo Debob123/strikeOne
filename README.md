@@ -41,10 +41,13 @@ source project_env/bin/activate
 4. **Install the dependencies**
 ```bash
 pip install -r requirements.txt
+```
 
 5. **Set the FLASK_APP environment variable:
 ```bash
 export FLASK_APP=run.py
+```
 
 6. **Running the flask development server
-flask run 
+flask run
+```
