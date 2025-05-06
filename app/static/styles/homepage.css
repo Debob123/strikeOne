@@ -169,7 +169,7 @@ th {
 
 /* Trivia Game Styling */
 .question-box {
-    border: 2px solid #ccc;
+    border: 10px solid #ccc;
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -235,12 +235,13 @@ th {
     0% { transform: scale(0.5); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
-return-home-btn {
+/* Positioning the Return to Home Button */
+.return-home-btn {
     position: fixed;
-    top: 20px;  /* Adjust this for top space */
-    right: 20px;  /* Adjust this for right space */
-    padding: 12px 25px;  /* Adjust padding for a better button look */
-    background-color: #4CAF50;
+    top: 0px;  /* Distance from the top */
+    right: 20px;  /* Distance from the right */
+    padding: 8px 20px;
+    background-color: #e81010;
     color: white;
     text-align: center;
     text-decoration: none;
@@ -251,6 +252,6 @@ return-home-btn {
 
 /* Hover effect for button */
 .return-home-btn:hover {
-    background-color: #45a049;
+    background-color: #e61212;
     transform: scale(1.05);
 }

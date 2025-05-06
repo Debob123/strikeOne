@@ -79,11 +79,26 @@ def logout():
     return redirect(url_for('routes.login'))  # Redirect to login page after logout
 
 
-# Dashboard (optional landing page after login)
+
 # Dashboard (optional landing page after login)
 @bp.route('/dashboard')
 def dashboard():
-    result = db.session.execute(text('SELECT DISTINCT team_name, t.teamID FROM teams t RIGHT JOIN nohitter nh ON t.teamID = nh.teamID WHERE team_name IS NOT NULL ORDER BY team_name'))
+    result = db.session.execute(text('''
+    SELECT DISTINCT t.team_name, t.teamID
+    FROM teams t
+    JOIN (
+        SELECT teamID, MAX(yearID) AS latest_year
+        FROM teams
+        GROUP BY teamID
+    ) latest_teams ON t.teamID = latest_teams.teamID AND t.yearID = latest_teams.latest_year
+    RIGHT JOIN nohitter nh ON t.teamID = nh.teamID
+    WHERE t.team_name IS NOT NULL
+    ORDER BY t.team_name;
+'''))
+    
+    for row in result:
+        print(f"Team Name: {row.team_name}, Team ID: {row.teamID}")
+        
     teams = [{'name': row.team_name, 'id': row.teamID} for row in result]
     return render_template('dashboard.html', teams=teams)
 
@@ -91,28 +106,42 @@ def dashboard():
 def show_nohitters(team):
     # Query for won no-hitters with the number of pitchers involved
     nhQueryWon = text("""
-    SELECT DISTINCT 
-        DATE_FORMAT(STR_TO_DATE(n.date, '%Y%m%d'), '%m/%d/%Y') AS game_date,
-        opp.team_name AS opponent_team,
-        COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
-    FROM nohitter n
-    JOIN teams opp ON n.oppID = opp.teamID
-    WHERE n.teamID = :teamID AND n.team_win = 1
-    GROUP BY n.date, opp.team_name
-    ORDER BY n.date;
+        SELECT DISTINCT 
+            DATE_FORMAT(STR_TO_DATE(n.date, '%Y%m%d'), '%m/%d/%Y') AS game_date,
+            t.team_name AS team_name,  -- Use the correct team name for the specific year
+            opp.team_name AS opponent_team,
+            COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
+        FROM nohitter n
+        JOIN (
+            SELECT teamID, MAX(yearID) AS latest_year
+            FROM teams
+            GROUP BY teamID
+        ) latest_teams ON n.teamID = latest_teams.teamID
+        JOIN teams t ON n.teamID = t.teamID AND t.yearID = latest_teams.latest_year  -- Ensure the team is from the correct year
+        JOIN teams opp ON n.oppID = opp.teamID
+        WHERE n.teamID = :teamID AND n.team_win = 1
+        GROUP BY n.date, t.team_name, opp.team_name
+        ORDER BY n.date;
     """)
 
     # Query for lost no-hitters with the number of pitchers involved
     nhQueryLost = text("""
-    SELECT DISTINCT 
-        DATE_FORMAT(STR_TO_DATE(n.date, '%Y%m%d'), '%m/%d/%Y') AS game_date,
-        opp.team_name AS opponent_team,
-        COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
-    FROM nohitter n
-    JOIN teams opp ON n.oppID = opp.teamID
-    WHERE n.teamID = :teamID AND n.team_win = 0
-    GROUP BY n.date, opp.team_name
-    ORDER BY n.date;
+        SELECT DISTINCT 
+            DATE_FORMAT(STR_TO_DATE(n.date, '%Y%m%d'), '%m/%d/%Y') AS game_date,
+            t.team_name AS team_name,  -- Use the correct team name for the specific year
+            opp.team_name AS opponent_team,
+            COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
+        FROM nohitter n
+        JOIN (
+            SELECT teamID, MAX(yearID) AS latest_year
+            FROM teams
+            GROUP BY teamID
+        ) latest_teams ON n.teamID = latest_teams.teamID
+        JOIN teams t ON n.teamID = t.teamID AND t.yearID = latest_teams.latest_year  -- Ensure the team is from the correct year
+        JOIN teams opp ON n.oppID = opp.teamID
+        WHERE n.teamID = :teamID AND n.team_win = 0
+        GROUP BY n.date, t.team_name, opp.team_name
+        ORDER BY n.date;
     """)
 
     # Execute both queries
