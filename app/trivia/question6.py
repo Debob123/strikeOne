@@ -57,7 +57,7 @@ def generate_question6(question_text):
 
     return None, "Failed to find a player with a shared birthday after multiple attempts."
 
-def check_answer(user_input):
+def check_answer(user_input, correct_answer):
     # Get reference birthday from session
     birth_month = session.get('trivia_birthday_month')
     birth_day = session.get('trivia_birthday_day')
@@ -83,8 +83,8 @@ def check_answer(user_input):
     # Compare birthday
     if (user_month, user_day, user_year) == (birth_month, birth_day, birth_year):
         current_user.question_right()
-        return "Correct! That player has the same birthday."
+        return f"Correct! {user_input} has the same birthday."
     else:
         current_user.question_wrong()
         ref_name = session.get('trivia_reference_player', 'the reference player')
-        return f"Incorrect. {user_input} does not share a birthday with {ref_name}."
+        return f"Incorrect. {correct_answer} shares a birthday with {ref_name}, not {user_input}."

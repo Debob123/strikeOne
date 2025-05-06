@@ -1,3 +1,4 @@
+from sqlite3 import Cursor
 from flask import session
 from app import db
 from sqlalchemy import text, func
@@ -95,17 +96,37 @@ def generate_question1(question_text):
 
 
 
-def check_answer(user_input):
+def check_answer(user_input, correct_answer):
     if not user_input:
         return "You must enter a player's name."
     
     user = current_user
     # Split first and last name
     parts = user_input.strip().lower().split()
-    if len(parts) != 2:
-        return "Please enter both a first and last name."
+    if len(parts) == 2:
+        first_name = parts[0]
+        last_name = parts[1]
 
-    first_name, last_name = parts
+    elif len(parts) == 3:
+        # Try combining first two as first name
+        first_try = f"{parts[0]} {parts[1]}"
+        Cursor.execute("SELECT COUNT(*) FROM people WHERE nameFirst = %s", (first_try,))
+        if Cursor.fetchone()[0] > 0:
+            first_name = first_try
+            last_name = parts[2]
+        
+        second_try = f"{parts[1]} {parts[2]}"
+        Cursor.execute("SELECT COUNT(*) FROM people WHERE nameLast = %s", (second_try,))
+        if Cursor.fetchone()[0] > 0:
+            last_name = second_try
+        
+        elif len(parts) == 4:
+            first_name = f"{parts[0]} {parts[1]}"
+            last_name = f"{parts[2]} {parts[3]}"
+        
+        else:
+            return "Please enter both a first and last name."
+
 
     # Step 1: Find the playerID that matches the given name
     query = text('''
@@ -142,4 +163,4 @@ def check_answer(user_input):
         return f"Correct! {first_name.title()} {last_name.title()} played for both teams."
     else:
         current_user.question_wrong()
-        return f"Incorrect. {first_name.title()} {last_name.title()} did not play for both teams."
+        return f"Incorrect. {correct_answer.title()} played for both teams, not {first_name.title()} {last_name.title()}."
