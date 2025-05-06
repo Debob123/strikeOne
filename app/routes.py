@@ -447,9 +447,19 @@ def baseball_get_question():
                 team1 = team1.replace("'", "''")
                 team2 = team2.replace("'", "''")
 
+                sql = 'Select distinct awardid from awards;'
+                awardid = db.session.execute(text(sql)).fetchall()
+                awardid = [awardid[0] for awardid in awardid]
+
+                award1 = random.choice(awardid)
+
+                award2 = award1
+                while award1 == award2:
+                    award2 = random.choice(awardid)
+
                 question = baseball_questions['third_base']['questions'][index].format(yearid=yearid, team1=team1,
-                                                                                       team2=team2)
-                sql = baseball_questions['third_base']['sql'][index].format(yearid=yearid, team1=team1, team2=team2)
+                                                                                       team2=team2,award1=award1)
+                sql = baseball_questions['third_base']['sql'][index].format(yearid=yearid, team1=team1, team2=team2,award1=award1)
 
                 fortnite = db.session.execute(text(sql)).fetchall()
                 fortnite = [row[0] for row in fortnite if row[0] is not None]
