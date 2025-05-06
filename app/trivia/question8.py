@@ -1,4 +1,5 @@
 import random
+from sqlite3 import Cursor
 from flask import session
 from app import db
 from sqlalchemy import text
@@ -45,24 +46,36 @@ def generate_question8(question_text):
     return Question(question_text=formatted_question, correct_answers=players), None
 
 
-def check_answer(user_input):
+def check_answer(user_input, correct_answer):
     # Retrieve the year threshold from session
     year_threshold = session.get("question8_year_threshold")
     if year_threshold is None:
         return "Missing question context."
+    
+    parts = user_input.strip().lower().split()
+    if len(parts) == 2:
+        first_name = parts[0]
+        last_name = parts[1]
 
-    # Clean and format user input
-    user_input = user_input.strip().lower()
-    if not user_input:
-        return "Please enter a name."
-
-    name_parts = user_input.split()
-    if len(name_parts) < 2:
-        return "Please enter both first and last name."
-
-    # Extract first and last name
-    first_name = name_parts[0]
-    last_name = name_parts[-1]
+    elif len(parts) == 3:
+        # Try combining first two as first name
+        first_try = f"{parts[0]} {parts[1]}"
+        Cursor.execute("SELECT COUNT(*) FROM people WHERE nameFirst = %s", (first_try,))
+        if Cursor.fetchone()[0] > 0:
+            first_name = first_try
+            last_name = parts[2]
+        
+        second_try = f"{parts[1]} {parts[2]}"
+        Cursor.execute("SELECT COUNT(*) FROM people WHERE nameLast = %s", (second_try,))
+        if Cursor.fetchone()[0] > 0:
+            last_name = second_try
+        
+        elif len(parts) == 4:
+            first_name = f"{parts[0]} {parts[1]}"
+            last_name = f"{parts[2]} {parts[3]}"
+        
+        else:
+             return "Please enter both a first and last name."
 
     # Query to check if the player matches the criteria
     query = text("""
@@ -87,5 +100,6 @@ def check_answer(user_input):
 
     # Return appropriate feedback based on result
     if result:
-        return "Correct!"
-    return f"Incorrect. That player either played fewer than {year_threshold} years or made an All-Star appearance."
+        return f"Correct! {user_input} played more than {year_threshold} years and never made an All-Star game."
+    
+    return f"Incorrect. {correct_answer} played more than {year_threshold} years and never made an All-Star game, not {user_input}."

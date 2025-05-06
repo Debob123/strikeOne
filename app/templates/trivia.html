@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trivia Game</title>
-    <!-- Link to the external CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/homepage.css') }}">
     <script>
-        // Function to show the result pop-up and redirect
         function showResult(message) {
-            // Show the alert with the result message
             alert(message);
-
-            // Redirect the user to the trivia page after a short delay
             setTimeout(function() {
-                window.location.href = "/trivia_page"; // Adjust the URL if needed
-            }, 1500); // Redirect after 1.5 seconds
+                window.location.href = "/trivia_page";
+            }, 1500);
         }
 
-        // Handle clicking on an answer
         function submitAnswer(option) {
-            var selectedAnswer = option.getAttribute('data-answer');
+            const selectedAnswer = option.getAttribute('data-answer');
             document.getElementById('selected_answer').value = selectedAnswer;
 
-            // Submit the form
-            option.closest('form').submit();
+            const isCorrect = option.getAttribute('data-correct') === 'true';
+            const icon = document.getElementById('feedback-icon');
+            icon.textContent = isCorrect ? '✔️' : '❌';
+            icon.className = isCorrect ? 'popup-icon correct' : 'popup-icon incorrect';
+
+            setTimeout(() => {
+                option.closest('form').submit();
+            }, 600);
         }
     </script>
 </head>
@@ -45,25 +45,40 @@
             </a>
         </div>
     </div>
+    <a href="/dashboard" class="btn return-home-btn">
+        Back to Dashboard
+    </a>
 
-    <h1>Trivia Question</h1>
-    <p>{{ question_text }}</p>
+    <!-- Boxed question section -->
+    <div class="question-box">
+        <h1>Trivia Question</h1>
+        <p>{{ question_text }}</p>
+        <h3>Choose an answer:</h3>
 
-    <h3>Choose an answer:</h3>
-    <form method="POST">
-        <div class="answers">
-            {% for answer in all_answers %}
-                <div class="answer-option" data-answer="{{ answer }}" onclick="submitAnswer(this)">
-                    {{ answer }}
-                </div>
-            {% endfor %}
-        </div>
-        <input type="hidden" id="selected_answer" name="answer">
-        <!-- Hidden field for question_id -->
-        <input type="hidden" name="question_id" value="{{ question_id }}"> <!-- Add this -->
-        <button type="submit" style="display: none;">Submit</button>
-    </form>
+        <form method="POST">
+            <div class="answers">
+                {% for answer in all_answers %}
+                    <div class="answer-option"
+                         data-answer="{{ answer }}"
+                         data-correct="{{ 'true' if answer == correct_answer else 'false' }}"
+                         onclick="submitAnswer(this)">
+                        {{ answer }}
+                    </div>
+                {% endfor %}
+            </div>
+        
+            <!-- Feedback Icon (✔️ or ❌) -->
+            <div id="feedback-icon" class="popup-icon"></div>
+        
+            <input type="hidden" id="selected_answer" name="answer">
+            <input type="hidden" name="question_id" value="{{ question_id }}">
+            <input type="hidden" name="correct_answer" value="{{ correct_answer }}">
+            <button type="submit" style="display: none;">Submit</button>
+        </form>        
+    </div>
 
+    
+    <!-- Result message from Flask (fallback) -->
     <div class="result">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -78,10 +93,8 @@
 
     {% if result_message %}
         <script>
-            // Call showResult when the result message is set by Flask
             showResult("{{ result_message }}");
         </script>
     {% endif %}
-
 </body>
 </html>

@@ -1,3 +1,4 @@
+from sqlite3 import Cursor
 from flask import session
 from app import db
 from sqlalchemy import text
@@ -60,15 +61,34 @@ def generate_question5(question_text):
     trivia_question = Question(rendered_text, answers)
     return trivia_question, None
 
-def check_answer(user_input):
+def check_answer(user_input, correct_answer):
     if not user_input:
         return "You must enter a player's name."
-
     parts = user_input.strip().lower().split()
-    if len(parts) != 2:
-        return "Please enter both a first and last name."
+    if len(parts) == 2:
+        first_name = parts[0]
+        last_name = parts[1]
 
-    first_name, last_name = parts
+    elif len(parts) == 3:
+        # Try combining first two as first name
+        first_try = f"{parts[0]} {parts[1]}"
+        Cursor.execute("SELECT COUNT(*) FROM people WHERE nameFirst = %s", (first_try,))
+        if Cursor.fetchone()[0] > 0:
+            first_name = first_try
+            last_name = parts[2]
+        
+        second_try = f"{parts[1]} {parts[2]}"
+        Cursor.execute("SELECT COUNT(*) FROM people WHERE nameLast = %s", (second_try,))
+        if Cursor.fetchone()[0] > 0:
+            last_name = second_try
+        
+        elif len(parts) == 4:
+            first_name = f"{parts[0]} {parts[1]}"
+            last_name = f"{parts[2]} {parts[3]}"
+        
+        else:
+             return "Please enter both a first and last name."
+
 
     player_query = text('''
         SELECT playerID FROM people
@@ -99,7 +119,7 @@ def check_answer(user_input):
     ''')
     if not db.session.execute(team_check, {'player_id': submitted_player_id, 'team_id': team_id}).fetchone():
         current_user.question_wrong()
-        return f"Incorrect. This player did not play for {team_name}."
+        return f"Incorrect. {correct_answer.title()} was born in {birth_country}, not {first_name.title()} {last_name.title()}."
 
     # Check birthplace
     country_check = text('''
@@ -109,10 +129,10 @@ def check_answer(user_input):
     ''')
     if not db.session.execute(country_check, {'player_id': submitted_player_id, 'birth_country': birth_country}).fetchone():
         current_user.question_wrong()
-        return f"Incorrect. This player was not born in {birth_country}."
+        return f"Incorrect. {correct_answer.title()} was born in {birth_country}, not {first_name.title()} {last_name.title()}."
 
     # If both conditions met
     current_user.question_right()
-    return f"Correct! This player played for {team_name} and was born in {birth_country}."
+    return f"Correct! {first_name.title()}{last_name.title()}played for {team_name} and was born in {birth_country}."
 
     
