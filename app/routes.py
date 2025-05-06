@@ -100,11 +100,12 @@ def show_nohitters(team):
         opp.team_name AS opponent_team,
         COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
     FROM nohitter n
-    JOIN teams opp ON n.oppID = opp.teamID
+    JOIN teams opp ON n.oppID = opp.teamID AND n.yearID = opp.yearID
     WHERE n.teamID = :teamID AND n.team_win = 1
     GROUP BY n.date, opp.team_name
     ORDER BY n.date;
     """)
+    
 
     # Query for lost no-hitters with the number of pitchers involved
     nhQueryLost = text("""
@@ -113,7 +114,7 @@ def show_nohitters(team):
         opp.team_name AS opponent_team,
         COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
     FROM nohitter n
-    JOIN teams opp ON n.oppID = opp.teamID
+    JOIN teams opp ON n.oppID = opp.teamID AND n.yearID = opp.yearID
     WHERE n.teamID = :teamID AND n.team_win = 0
     GROUP BY n.date, opp.team_name
     ORDER BY n.date;
