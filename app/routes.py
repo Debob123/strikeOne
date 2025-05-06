@@ -254,7 +254,7 @@ def jeopardy():
 
 
 @bp.route('/submitJeopardy')
-def submit():
+def submitJeopardy():
     answer = request.args.get('answer')
     id = request.args.get('sql')
     results = []
@@ -308,6 +308,29 @@ def ban_user(user_id):
     return redirect(url_for('routes.admin_dashboard'))
 
 
+@bp.route('/submitBaseball')
+def submitBaseball():
+    answer = request.args.get('answer')
+    type = request.args.get('type')
+    results = []
+
+    for item in app.baseball.questions:
+        if type in item:
+
+            results = app.baseball.questions[type]['answers']
+
+
+    correct = answer.strip().lower() in [str(r).strip().lower() for r in results]
+
+    # You could add more feedback here
+    if correct:
+        response = {"result": "Correct", "correct_answer": None}  # No need to show the correct answer if they're right
+    else:
+        response = {"result": "Wrong", "correct_answer": results[0]}  # Show the first correct answer if they're wrong
+
+    return jsonify(response)
+
+
 @bp.route('/baseball/get_questions', methods=['GET'])
 @login_required
 def baseball_get_question():
@@ -324,7 +347,7 @@ def baseball_get_question():
             "question": "",
             "answers": [],
         },
-        'HomeRun': {
+        'home_run': {
             "question": "",
             "answers": [],
         },
@@ -335,17 +358,16 @@ def baseball_get_question():
         print(base)
         if base == 'first_base':
             question = ""
-            print(questions['first_base'])
+            # print(questions['first_base'])
             fortnite = []
             while not fortnite:
                 gen = len(baseball_questions[base]['questions'])
                 index = random.randint(0, gen - 1)
 
                 yearid = 2000 + random.randint(1, 23)
-                print("fortnite")
                 teams = db.session.execute(
                     text(
-                        "SELECT team_name FROM teams WHERE yearid = {yearid}".format(yearid=yearid))).fetchall()
+                        "SELECT distinct team_name FROM teams WHERE yearid = {yearid}".format(yearid=yearid))).fetchall()
 
                 teams = [team[0] for team in teams]
 
@@ -353,7 +375,6 @@ def baseball_get_question():
 
                 question = baseball_questions[base]['questions'][index].format(yearid=yearid,team1 =team1)
                 sql = baseball_questions[base]['sql'][index].format(yearid=yearid,team1 =team1)
-
 
                 fortnite = db.session.execute(text(sql)).fetchall()
                 fortnite = [row[0] for row in fortnite if row[0] is not None]
@@ -364,15 +385,139 @@ def baseball_get_question():
 
 
         elif base == 'second_base':
-            print(questions['second_base'])
+            question = ""
+            fortnite = []
+            gen = len(baseball_questions['second_base']['questions'])
+            index = random.randint(0, gen - 1)
+            while not fortnite:
+
+
+                yearid = 2000 + random.randint(1, 23)
+
+                teams = db.session.execute(
+                    text(
+                        "SELECT distinct team_name FROM teams".format(
+                            yearid=yearid))).fetchall()
+
+                teams = [team[0] for team in teams]
+                team1 = random.choice(teams)
+                team2 = team1
+                while team1 == team2:
+                    team2 = random.choice(teams)
+
+                team1 = team1.replace("'", "''")
+                team2 = team2.replace("'", "''")
+                sql = 'Select distinct awardid from awards;'
+                awardid = db.session.execute(text(sql)).fetchall()
+                awardid = [awardid[0] for awardid in awardid]
+
+                award1 = random.choice(awardid)
+
+                question = baseball_questions['second_base']['questions'][index].format(yearid=yearid, team1=team1,
+                                                                                        team2=team2, award1=award1)
+                sql = baseball_questions['second_base']['sql'][index].format(yearid=yearid, team1=team1, team2=team2,
+                                                                             award1=award1)
+
+                fortnite = db.session.execute(text(sql)).fetchall()
+                fortnite = [row[0] for row in fortnite if row[0] is not None]
+
+            questions['second_base']['question'] = question
+            questions['second_base']['answers'] = fortnite
         elif base == 'third_base':
-            print(questions['third_base'])
-        elif base == 'HomeRun':
-            print(questions['HomeRun'])
+            question = ""
+            fortnite = []
+            gen = len(baseball_questions['third_base']['questions'])
+            index = random.randint(0, gen - 1)
+            while not fortnite:
+
+
+                yearid = 2000 + random.randint(1, 23)
+
+                teams = db.session.execute(
+                    text(
+                        "SELECT distinct team_name FROM teams".format(
+                            yearid=yearid))).fetchall()
+
+                teams = [team[0] for team in teams]
+                team1 = random.choice(teams)
+                team2 = team1
+                while team1 == team2:
+                    team2 = random.choice(teams)
+
+                team1 = team1.replace("'", "''")
+                team2 = team2.replace("'", "''")
+
+                question = baseball_questions['third_base']['questions'][index].format(yearid=yearid, team1=team1,
+                                                                                       team2=team2)
+                sql = baseball_questions['third_base']['sql'][index].format(yearid=yearid, team1=team1, team2=team2)
+
+                fortnite = db.session.execute(text(sql)).fetchall()
+                fortnite = [row[0] for row in fortnite if row[0] is not None]
+
+            questions['third_base']['question'] = question
+            questions['third_base']['answers'] = fortnite
+        elif base == 'home_run':
+            question = ""
+            fortnite = []
+            gen = len(baseball_questions[base]['questions'])
+            index = random.randint(0, gen - 1)
+            while not fortnite:
+                yearid = 2000 + random.randint(1, 23)
+
+                teams = db.session.execute(
+                    text(
+                        "SELECT distinct team_name FROM teams".format(
+                            yearid=yearid))).fetchall()
+
+                teams = [team[0] for team in teams]
+                team1 = random.choice(teams)
+                team2 = team1
+                team3 = team1
+                while team1 == team2 or team2 == team3 or team1 == team3:
+                    team2 = random.choice(teams)
+                    team3 = random.choice(teams)
+
+                team1 = team1.replace("'", "''")
+                team2 = team2.replace("'", "''")
+                team3 = team3.replace("'", "''")
+
+                sql = 'Select distinct awardid from awards;'
+                awardid = db.session.execute(text(sql)).fetchall()
+                awardid = [awardid[0] for awardid in awardid]
+
+                award1 = random.choice(awardid)
+
+                award2 = award1
+                while award1 == award2:
+                    award2 = random.choice(awardid)
+
+
+                question = baseball_questions['home_run']['questions'][index].format(yearid=yearid, team1=team1,
+                                                                                    team2=team2, team3=team3,
+                                                                                    award1=award1,
+                                                                                    award2=award2)
+                sql = baseball_questions['home_run']['sql'][index].format(yearid=yearid, team1=team1, team2=team2,
+                                                                         team3=team3, award1=award1, award2=award2)
+
+                fortnite = db.session.execute(text(sql)).fetchall()
+                fortnite = [row[0] for row in fortnite if row[0] is not None]
+
+            questions['home_run']['question'] = question
+            questions['home_run']['answers'] = fortnite
 
 
     app.baseball.questions = questions
-    return {'questions': questions}
+    questions = {
+        'first_base': "",
+        'second_base': "",
+        'third_base': "",
+        'home_run': "",
+    }
+    for question in app.baseball.questions:
+        questions[question] = app.baseball.questions[question]['question']
+
+    print(str(app.baseball.questions))
+    return jsonify({'questions': questions})
 
 
 @bp.route('/baseball')
@@ -389,8 +534,12 @@ def baseball():
 
     app.baseball.inning = 1
 
+    app.baseball.teamUp = "Team 1"
 
+    video_name = "hitThird_loadedNone"  # or dynamically pass a value
+    video_url = url_for('static', filename=f'videos/{video_name}.mov')
+    app.baseball.baseball_questions = app.baseball.store_question_answers()
 
-    return render_template('baseball.html',first_base=0, second_base=0, third_base=0,team1_score=0, team2_score=0, outs=0, inning=1)
+    return render_template('baseball.html',first_base=0, second_base=0, third_base=0,team1_score=0, team2_score=0, outs=0, inning=1,video_url=video_url)
 
 

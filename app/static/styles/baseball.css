@@ -1,0 +1,108 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 700px;
+    margin: 50px auto;
+    background-color: #1e2a38;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.3);
+}
+
+h1 {
+    text-align: center;
+    color: #ffd700;
+    margin-bottom: 30px;
+}
+
+#question-text {
+    font-size: 1.2em;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #2e3b4e;
+    border-radius: 8px;
+}
+
+#base-buttons button,
+#question-display button,
+#feedback-container button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    font-size: 1em;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#base-buttons button:hover,
+#question-display button:hover,
+#feedback-container button:hover {
+    background-color: #2980b9;
+}
+
+#question-display {
+    margin-top: 20px;
+}
+
+#question-display input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+
+#feedback-text {
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#score-container {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #2e3b4e;
+    border-radius: 8px;
+}
+
+#score-container p {
+    line-height: 1.6;
+}
+.back-btn {
+    background-color: #ff1e1e;         /* Dodger Blue */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.back-btn:hover {
+    background-color: #600202;         /* Slightly darker blue */
+    transform: translateY(-2px);
+}
+
+.back-btn:active {
+    background-color: #1874cd;         /* Even darker for click feedback */
+    transform: translateY(0);
+}
