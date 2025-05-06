@@ -12,7 +12,8 @@ from app.models import User, NoHitter, TriviaQuestion
 import app.jeopardy
 from app.forms import LoginForm, RegistrationForm
 from app.family_feud import generate_feud_round
-
+import app.baseball
+from app.baseball import baseball_questions, first_base, team1_score
 
 from app.forms import LoginForm, RegistrationForm  # created form
 from app.models import User
@@ -305,3 +306,91 @@ def ban_user(user_id):
         flash(f"Banned user: {user.username}", 'success')
 
     return redirect(url_for('routes.admin_dashboard'))
+
+
+@bp.route('/baseball/get_questions', methods=['GET'])
+@login_required
+def baseball_get_question():
+    questions = {
+        'first_base': {
+            "question": "",
+            "answers": [],
+        },
+        'second_base': {
+            "question": "",
+            "answers": [],
+        },
+        'third_base': {
+            "question": "",
+            "answers": [],
+        },
+        'HomeRun': {
+            "question": "",
+            "answers": [],
+        },
+    }
+
+    baseball_questions = app.baseball.baseball_questions
+    for base in app.baseball.baseball_questions:
+        print(base)
+        if base == 'first_base':
+            question = ""
+            print(questions['first_base'])
+            fortnite = []
+            while not fortnite:
+                gen = len(baseball_questions[base]['questions'])
+                index = random.randint(0, gen - 1)
+
+                yearid = 2000 + random.randint(1, 23)
+                print("fortnite")
+                teams = db.session.execute(
+                    text(
+                        "SELECT team_name FROM teams WHERE yearid = {yearid}".format(yearid=yearid))).fetchall()
+
+                teams = [team[0] for team in teams]
+
+                team1 = random.choice(teams)
+
+                question = baseball_questions[base]['questions'][index].format(yearid=yearid,team1 =team1)
+                sql = baseball_questions[base]['sql'][index].format(yearid=yearid,team1 =team1)
+
+
+                fortnite = db.session.execute(text(sql)).fetchall()
+                fortnite = [row[0] for row in fortnite if row[0] is not None]
+
+
+            questions['first_base']['question'] = question
+            questions['first_base']['answers'] = fortnite
+
+
+        elif base == 'second_base':
+            print(questions['second_base'])
+        elif base == 'third_base':
+            print(questions['third_base'])
+        elif base == 'HomeRun':
+            print(questions['HomeRun'])
+
+
+    app.baseball.questions = questions
+    return {'questions': questions}
+
+
+@bp.route('/baseball')
+@login_required
+def baseball():
+    app.baseball.first_base = 0
+    app.baseball.second_base = 0
+    app.baseball.third_base = 0
+
+    app.baseball.team1_score = 0
+    app.baseball.team2_score = 0
+
+    app.baseball.outs = 0
+
+    app.baseball.inning = 1
+
+
+
+    return render_template('baseball.html',first_base=0, second_base=0, third_base=0,team1_score=0, team2_score=0, outs=0, inning=1)
+
+
