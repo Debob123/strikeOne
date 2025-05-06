@@ -92,6 +92,7 @@ def dashboard():
 
 @bp.route('/nohitters/<team>')
 def show_nohitters(team):
+
     # Query for won no-hitters with the number of pitchers involved
     nhQueryWon = text("""
     SELECT DISTINCT 
@@ -132,7 +133,7 @@ def show_nohitters(team):
 
     # Fetch all teams for the dropdown or other display
     teamQueryAll = db.session.execute(
-        text('SELECT DISTINCT team_name, teamID FROM teams ORDER BY team_name'))
+        text('SELECT DISTINCT team_name, t.teamID FROM teams t RIGHT JOIN nohitter nh ON t.teamID = nh.teamID WHERE team_name IS NOT NULL ORDER BY team_name'))
     teams = [{'name': row.team_name, 'id': row.teamID} for row in teamQueryAll]
 
     return render_template('nohitters_team.html', 
