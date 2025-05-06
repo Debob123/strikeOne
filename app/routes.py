@@ -85,6 +85,9 @@ def logout():
 def dashboard():
     result = db.session.execute(text('SELECT DISTINCT team_name, t.teamID FROM teams t RIGHT JOIN nohitter nh ON t.teamID = nh.teamID WHERE team_name IS NOT NULL ORDER BY team_name'))
     teams = [{'name': row.team_name, 'id': row.teamID} for row in result]
+    for team in teams:
+        print(f"Team: {team['name']}")
+
     return render_template('dashboard.html', teams=teams)
 
 @bp.route('/nohitters/<team>')
