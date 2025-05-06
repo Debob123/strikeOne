@@ -83,6 +83,7 @@ def logout():
 # Dashboard (optional landing page after login)
 @bp.route('/dashboard')
 def dashboard():
+
     result = db.session.execute(text('''
     SELECT DISTINCT t.team_name, t.teamID
     FROM teams t
@@ -93,12 +94,11 @@ def dashboard():
     ) latest_teams ON t.teamID = latest_teams.teamID AND t.yearID = latest_teams.latest_year
     RIGHT JOIN nohitter nh ON t.teamID = nh.teamID
     WHERE t.team_name IS NOT NULL
-    ORDER BY t.team_name;
-'''))
+    ORDER BY t.team_name;'''))
     
     for row in result:
         print(f"Team Name: {row.team_name}, Team ID: {row.teamID}")
-        
+
     teams = [{'name': row.team_name, 'id': row.teamID} for row in result]
     return render_template('dashboard.html', teams=teams)
 
