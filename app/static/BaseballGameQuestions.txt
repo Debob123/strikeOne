@@ -55,4 +55,17 @@ INSERT INTO BaseballGameQuestions(BaseId, BaseNum, BaseQuestion, BaseSQL) SELECT
 INSERT INTO BaseballGameQuestions(BaseId, BaseNum, BaseQuestion, BaseSQL) SELECT 'home_run', COALESCE(MAX(BaseNum), -1) + 1, 'Name the fielding player with more than 100 errors in a season', 'Select name FROM JeopardyValues WHERE type = ''fielding_500'' AND idx = 2' FROM BaseballGameQuestions WHERE BaseId = 'home_run';
 INSERT INTO BaseballGameQuestions(BaseId, BaseNum, BaseQuestion, BaseSQL) SELECT 'home_run', COALESCE(MAX(BaseNum), -1) + 1, 'Name a player who has won the {award1} award and the {award2} award', 'SELECT DISTINCT nameFirst || '' '' || nameLast FROM people p JOIN awards a1 ON p.playerID = a1.playerID AND a1.awardID = ''{award1}'' JOIN awards a2 ON p.playerID = a2.playerID AND a2.awardID = ''{award2}'' ' FROM BaseballGameQuestions WHERE BaseId = 'home_run';
 INSERT INTO BaseballGameQuestions(BaseId, BaseNum, BaseQuestion, BaseSQL) SELECT 'third_base', COALESCE(MAX(BaseNum), -1) + 1, 'Name a player who has won the {award1} in the year {yearid}', 'SELECT DISTINCT nameFirst || '' '' || nameLast FROM people p JOIN awards a1 ON p.playerID = a1.playerID AND a1.awardID = ''{award1}'' AND a1.yearid = {yearid} ' FROM BaseballGameQuestions WHERE BaseId = 'third_base';
+INSERT INTO BaseballGameQuestions(BaseId, BaseNum, BaseQuestion, BaseSQL) SELECT 'first_base', COALESCE(MAX(BaseNum), -1) + 1, 'Name a manager', 'SELECT DISTINCT nameFirst || '' '' || nameLast FROM people p JOIN managers m ON p.playerID = m.playerID' FROM BaseballGameQuestions WHERE BaseId = 'first_base';
+INSERT INTO BaseballGameQuestions(BaseId, BaseNum, BaseQuestion, BaseSQL) SELECT 'second_base',COALESCE(MAX(BaseNum), -1) + 1, 'Name a manager who is currently(2023) managing', 'SELECT DISTINCT nameFirst || '' '' || nameLast FROM people p JOIN managers m ON p.playerID = m.playerID AND yearid = 2023' FROM BaseballGameQuestions WHERE BaseId = 'second_base';
+INSERT INTO BaseballGameQuestions(BaseId, BaseNum, BaseQuestion, BaseSQL) SELECT 'third_base',COALESCE(MAX(BaseNum), -1) + 1, 'Name a manager who managed for {team1} in {yearid}', 'SELECT DISTINCT nameFirst || '' '' || nameLast FROM people p JOIN managers m ON p.playerID = m.playerID AND yearid = {yearid} NATURAL JOIN teams WHERE team_name = ''{team1}''' FROM BaseballGameQuestions WHERE BaseId = 'third_base';
+INSERT INTO BaseballGameQuestions(BaseId, BaseNum, BaseQuestion, BaseSQL) SELECT 'home_run', COALESCE(MAX(BaseNum), -1) + 1, 'Name a manager who managed for {team1} and {team2}', 'SELECT DISTINCT p.nameFirst || '' '' || p.nameLast FROM managers a JOIN managers b ON a.playerID = b.playerID JOIN people p ON a.playerID = p.playerID JOIN teams t1 ON a.teamid = t1.teamID AND a.yearid = t1.yearID AND a.yearid >= 1950 JOIN teams t2 ON b.teamid = t2.teamID AND b.yearid = t2.yearID AND b.yearid >= 1950 WHERE t1.team_name = ''{team1}'' AND t2.team_name = ''{team2}''' FROM BaseballGameQuestions WHERE BaseId = 'home_run';
+
+-- INSERT INTO BaseballGameQuestions(BaseId, BaseNum, BaseQuestion, BaseSQL)
+-- SELECT 'second_base',
+-- COALESCE(MAX(BaseNum), -1) + 1,
+-- 'Name a manager who is currently(2023) managing',
+-- 'SELECT DISTINCT nameFirst || '' '' || nameLast
+-- FROM people p JOIN managers m ON p.playerID = m.playerID AND yearid = 2023'
+
+-- FROM BaseballGameQuestions WHERE BaseId = 'second_base';
 
