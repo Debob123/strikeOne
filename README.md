@@ -1,6 +1,8 @@
 # CSI3335 Project Virtual Environment
 
-This repository provides a virtual environment setup with specified dependencies for student projects in the CSI3335 course. **Please use Python 3.10 and above**
+### Python Version:
+
+- Make sure the python version is either 3.12 or 3.13.1
 
 ## Description
 
@@ -43,10 +45,31 @@ source project_env/bin/activate
 pip install -r requirements.txt
 ```
 
-## Usage
-
-Once the virtual environment is activated and dependencies are installed, you can start working on your project within this environment. Remember to deactivate the virtual environment once you're done:
-
+5. **Set the FLASK_APP environment variable(This will be the sql dump):
 ```bash
-deactivate
+export FLASK_APP=run.py
+
+if this doesnt work then run 'python run.py' in the command line while mariadb is running.
+Also make sure the baseball database is present in your maraiadb
 ```
+
+6. **Running the flask development server
+```bash
+flask run
+```
+
+## Additional Info
+
+1. **Admin information**
+   - The information is preloaded into the database so you DO NOT need to register the admin account in the registration page. To log in as an admin, enter the admin username and password into the login page. These can be found below
+     
+   - Username: 'Admin'
+   - Password: 'adminpassword'
+     
+
+2. **Divisions Extended**
+
+- The divisions table now displays the teams and their divisions
+- division_stint attribute number describes how many times the team switched divisions. If a division has a value of 2, hat means it's been in 2 divisions in its lifetime in baseball.
+
+

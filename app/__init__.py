@@ -157,6 +157,128 @@ def create_app():
 
     return app
 
+
+def add_season_stat():
+    # Database connection
+    target_conn = pymysql.connect(
+        host=mysql['host'],
+        user=mysql['user'],
+        password=mysql['password'],
+        database='StrikeOne',
+        autocommit=True  # Important for executing multiple statements
+    )
+
+    cursor = target_conn.cursor()
+
+    file_path = './app/static/battingSeason.txt'
+
+    try:
+        with open(file_path, 'r') as file:
+            # Read the entire file content
+            sql_script = file.read()
+
+            # Split the script into individual statements (semicolon separated)
+            sql_commands = [cmd.strip() for cmd in sql_script.split(';') if cmd.strip()]
+
+            # Execute each command
+            for command in sql_commands:
+                try:
+                    cursor.execute(command)
+                except pymysql.Error as e:
+                    print(f"Error executing command: {command[:50]}...")
+                    print(f"Database error: {e}")
+
+
+    except FileNotFoundError:
+        print(f"Error: File not found at {file_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close connections
+        cursor.close()
+        target_conn.close()
+
+
+def add_jeopardy_questions():
+    target_conn = pymysql.connect(
+        host=mysql['host'],
+        user=mysql['user'],
+        password=mysql['password'],
+        database='StrikeOne',
+        autocommit=True  # Important for executing multiple statements
+    )
+
+    cursor = target_conn.cursor()
+
+    file_path = './app/static/JeopardyQuestions.txt'
+
+    try:
+        with open(file_path, 'r') as file:
+            # Read the entire file content
+            sql_script = file.read()
+
+            # Split the script into individual statements (semicolon separated)
+            sql_commands = [cmd.strip() for cmd in sql_script.split(';') if cmd.strip()]
+
+            # Execute each command
+            for command in sql_commands:
+                try:
+                    cursor.execute(command)
+                except pymysql.Error as e:
+                    print(f"Error executing command: {command[:50]}...")
+                    print(f"Database error: {e}")
+
+
+    except FileNotFoundError:
+        print(f"Error: File not found at {file_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close connections
+        cursor.close()
+        target_conn.close()
+
+
+def add_baseball_game_questions():
+    target_conn = pymysql.connect(
+        host=mysql['host'],
+        user=mysql['user'],
+        password=mysql['password'],
+        database='StrikeOne',
+        autocommit=True  # Important for executing multiple statements
+    )
+
+    cursor = target_conn.cursor()
+
+    file_path = './app/static/BaseballGameQuestions.txt'
+
+    try:
+        with open(file_path, 'r') as file:
+            # Read the entire file content
+            sql_script = file.read()
+
+            # Split the script into individual statements (semicolon separated)
+            sql_commands = [cmd.strip() for cmd in sql_script.split(';') if cmd.strip()]
+
+            # Execute each command
+            for command in sql_commands:
+                try:
+                    cursor.execute(command)
+                except pymysql.Error as e:
+                    print(f"Error executing command: {command[:50]}...")
+                    print(f"Database error: {e}")
+
+
+    except FileNotFoundError:
+        print(f"Error: File not found at {file_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close connections
+        cursor.close()
+        target_conn.close()
+
+
 def create_tables_and_admin(app):
     from app.models import User, NoHitter, TriviaQuestion  
     """Create tables and insert the admin account if it doesn't already exist."""
@@ -182,6 +304,9 @@ def create_tables_and_admin(app):
         print("Copying baseball tables")
         copy_baseball_tables()
         set_divisions_extended()
+        add_season_stat()
+        add_jeopardy_questions()
+        add_baseball_game_questions()
 
         # NoHitter table CSV import
         if NoHitter.query.count() == 0:

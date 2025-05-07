@@ -1,7 +1,13 @@
+from sqlite3 import Cursor
 from flask import session
 from app import db
 from sqlalchemy import text, func
 import random
+from app.models import User
+from app.trivia import Question
+from flask_login import current_user
+
+
 
 def generate_question1(question_text):
     # Step 1: Find a player who played for at least two different teams
@@ -60,25 +66,67 @@ def generate_question1(question_text):
     # Step 5: Substitute into question text
     rendered_text = question_text.replace("{teamA}", team_name_1).replace("{teamB}", team_name_2)
 
+    # Step 6: Get players who played for both teams
+    query = text('''
+        SELECT nameFirst, nameLast
+        FROM people
+        WHERE playerID IN (
+            SELECT playerID
+            FROM batting
+            WHERE teamID IN (:team_id_1, :team_id_2)
+            GROUP BY playerID
+            HAVING COUNT(DISTINCT teamID) = 2
+        )
+    ''')
+    result = db.session.execute(query, {'team_id_1': team_id_1, 'team_id_2': team_id_2})
+    player_names = result.fetchall()
+
+    # Step 7: Prepare answers list
+    answers = [f"{first} {last}" for first, last in player_names]
+
+    # Step 8: Create and return the Question object
+    trivia_question = Question(rendered_text, answers)
+
     # Optional: Store values in session if needed for answer validation
     session['trivia_answer_playerID'] = random_player_id
     session['trivia_teamA'] = team_id_1
     session['trivia_teamB'] = team_id_2
 
-    return rendered_text, None
+    return trivia_question, None
 
 
 
-def check_answer(user_input):
+def check_answer(user_input, correct_answer):
     if not user_input:
         return "You must enter a player's name."
-
+    
+    user = current_user
     # Split first and last name
     parts = user_input.strip().lower().split()
-    if len(parts) != 2:
-        return "Please enter both a first and last name."
+    if len(parts) == 2:
+        first_name = parts[0]
+        last_name = parts[1]
 
-    first_name, last_name = parts
+    elif len(parts) == 3:
+        # Try combining first two as first name
+        first_try = f"{parts[0]} {parts[1]}"
+        Cursor.execute("SELECT COUNT(*) FROM people WHERE nameFirst = %s", (first_try,))
+        if Cursor.fetchone()[0] > 0:
+            first_name = first_try
+            last_name = parts[2]
+        
+        second_try = f"{parts[1]} {parts[2]}"
+        Cursor.execute("SELECT COUNT(*) FROM people WHERE nameLast = %s", (second_try,))
+        if Cursor.fetchone()[0] > 0:
+            last_name = second_try
+        
+        elif len(parts) == 4:
+            first_name = f"{parts[0]} {parts[1]}"
+            last_name = f"{parts[2]} {parts[3]}"
+        
+        else:
+            return "Please enter both a first and last name."
+
 
     # Step 1: Find the playerID that matches the given name
     query = text('''
@@ -111,7 +159,8 @@ def check_answer(user_input):
     teams_played_for = {row[0] for row in result.fetchall()}
 
     if teamA in teams_played_for and teamB in teams_played_for:
-        return f" Correct! {first_name.title()} {last_name.title()} played for both teams."
+        current_user.question_right()
+        return f"Correct! {first_name.title()} {last_name.title()} played for both teams."
     else:
-        return f"Incorrect. {first_name.title()} {last_name.title()} did not play for both teams."
-
+        current_user.question_wrong()
+        return f"Incorrect. {correct_answer.title()} played for both teams, not {first_name.title()} {last_name.title()}."

@@ -17,6 +17,17 @@
                 <h1>Register</h1>
                 {{ form.hidden_tag() }}
 
+                <!-- Display error message if any -->
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert alert-danger">
+                            {% for message in messages %}
+                                <p>{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
                 <div class="input-box">
                     {{ form.username(placeholder="username") }}
                     <i class='bx bx-user-circle'></i>

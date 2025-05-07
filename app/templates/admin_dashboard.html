@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Strike One</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('routes.logout') }}" class="logout-button">Logout</a>
+
+    <div class="admin-container">
+        <div class="admin-table">
+            <h1 class="admin-title">Admin Control</h1>
+            <!-- Display error message if any -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="alert alert-danger">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Admin</th>
+                        <th>Banned</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.LoginID }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ 'Yes' if user.is_admin else 'No' }}</td>
+                        <td>{{ 'Yes' if user.is_banned else 'No' }}</td>
+                        <td>
+                            {% if not user.is_admin and not user.is_banned %}
+                            <form method="post" action="{{ url_for('routes.ban_user', user_id=user.LoginID) }}">
+                                <button type="submit" class="ban-btn">Ban</button>
+                            </form>
+                            {% elif user.is_banned %}
+                                <span>Banned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>t

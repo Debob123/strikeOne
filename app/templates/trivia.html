@@ -3,33 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trivia Question</title>
+    <title>Trivia Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/homepage.css') }}">
+    <script>
+        function showResult(message) {
+            alert(message);
+            setTimeout(function() {
+                window.location.href = "/trivia_page";
+            }, 1500);
+        }
+
+        function submitAnswer(option) {
+            const selectedAnswer = option.getAttribute('data-answer');
+            document.getElementById('selected_answer').value = selectedAnswer;
+
+            const isCorrect = option.getAttribute('data-correct') === 'true';
+            const icon = document.getElementById('feedback-icon');
+            icon.textContent = isCorrect ? '✔️' : '❌';
+            icon.className = isCorrect ? 'popup-icon correct' : 'popup-icon incorrect';
+
+            setTimeout(() => {
+                option.closest('form').submit();
+            }, 600);
+        }
+    </script>
 </head>
 <body>
-    <h2>Trivia Question</h2>
-
-    {% if question_text %}
-        <div>
-            <h3>{{ question_text }}</h3>  <!-- Displaying the trivia question -->
+    <!-- Score Dropdown Button -->
+    <div class="dropdown" id="score-btn">
+        <button class="dropbtn">
+            Score: {{ current_user.score }}
+        </button>
+        <div class="dropdown-content">
+            <a href="#" class="answer-item">
+                <span class="check-mark">✔</span>
+                Correct Answers: {{ current_user.correct_answers }}
+            </a>
+            <a href="#" class="answer-item">
+                <span class="x-mark">❌</span>
+                Wrong Answers: {{ current_user.incorrect_answers }}
+            </a>
         </div>
-    {% else %}
-        <p>No trivia question available.</p>
+    </div>
+    <a href="/dashboard" class="btn return-home-btn">
+        Back to Dashboard
+    </a>
+
+    <!-- Boxed question section -->
+    <div class="question-box">
+        <h1>Trivia Question</h1>
+        <p>{{ question_text }}</p>
+        <h3>Choose an answer:</h3>
+
+        <form method="POST">
+            <div class="answers">
+                {% for answer in all_answers %}
+                    <div class="answer-option"
+                         data-answer="{{ answer }}"
+                         data-correct="{{ 'true' if answer == correct_answer else 'false' }}"
+                         onclick="submitAnswer(this)">
+                        {{ answer }}
+                    </div>
+                {% endfor %}
+            </div>
+        
+            <!-- Feedback Icon (✔️ or ❌) -->
+            <div id="feedback-icon" class="popup-icon"></div>
+        
+            <input type="hidden" id="selected_answer" name="answer">
+            <input type="hidden" name="question_id" value="{{ question_id }}">
+            <input type="hidden" name="correct_answer" value="{{ correct_answer }}">
+            <button type="submit" style="display: none;">Submit</button>
+        </form>        
+    </div>
+
+    
+    <!-- Result message from Flask (fallback) -->
+    <div class="result">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    {% if result_message %}
+        <script>
+            showResult("{{ result_message }}");
+        </script>
     {% endif %}
-
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-
-    <form method="post">
-        <label for="answer">Your Answer:</label>
-        <input type="text" name="answer" id="answer" required>
-        <button type="submit">Submit Answer</button>
-    </form>
 </body>
 </html>
