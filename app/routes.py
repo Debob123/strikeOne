@@ -85,10 +85,14 @@ def logout():
 def dashboard():
     result = db.session.execute(text('SELECT DISTINCT team_name, t.teamID FROM teams t RIGHT JOIN nohitter nh ON t.teamID = nh.teamID WHERE team_name IS NOT NULL ORDER BY team_name'))
     teams = [{'name': row.team_name, 'id': row.teamID} for row in result]
+    for team in teams:
+        print(f"Team: {team['name']}")
+
     return render_template('dashboard.html', teams=teams)
 
 @bp.route('/nohitters/<team>')
 def show_nohitters(team):
+
     # Query for won no-hitters with the number of pitchers involved
     nhQueryWon = text("""
     SELECT DISTINCT 
@@ -96,11 +100,12 @@ def show_nohitters(team):
         opp.team_name AS opponent_team,
         COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
     FROM nohitter n
-    JOIN teams opp ON n.oppID = opp.teamID
+    JOIN teams opp ON n.oppID = opp.teamID AND n.yearID = opp.yearID
     WHERE n.teamID = :teamID AND n.team_win = 1
     GROUP BY n.date, opp.team_name
     ORDER BY n.date;
     """)
+    
 
     # Query for lost no-hitters with the number of pitchers involved
     nhQueryLost = text("""
@@ -109,7 +114,7 @@ def show_nohitters(team):
         opp.team_name AS opponent_team,
         COUNT(DISTINCT n.pitcher_id) AS pitchers_involved
     FROM nohitter n
-    JOIN teams opp ON n.oppID = opp.teamID
+    JOIN teams opp ON n.oppID = opp.teamID AND n.yearID = opp.yearID
     WHERE n.teamID = :teamID AND n.team_win = 0
     GROUP BY n.date, opp.team_name
     ORDER BY n.date;
@@ -129,7 +134,7 @@ def show_nohitters(team):
 
     # Fetch all teams for the dropdown or other display
     teamQueryAll = db.session.execute(
-        text('SELECT DISTINCT team_name, teamID FROM teams ORDER BY team_name'))
+        text('SELECT DISTINCT team_name, t.teamID FROM teams t RIGHT JOIN nohitter nh ON t.teamID = nh.teamID WHERE team_name IS NOT NULL ORDER BY team_name'))
     teams = [{'name': row.team_name, 'id': row.teamID} for row in teamQueryAll]
 
     return render_template('nohitters_team.html', 
@@ -144,9 +149,18 @@ def show_nohitters(team):
 
 # Route to display a random trivia question
 import random
+from flask import render_template, request, redirect, url_for, flash
+from flask_login import login_required
 from sqlalchemy.sql import func
+from app import db
 from app.models import TriviaQuestion
-from app.trivia import generate_incorrect_answers, question1, question2, question3, question4, question5, question6, question7, question8
+from app.trivia import (
+    generate_incorrect_answers,
+    question1, question2, question3, question4,
+    question5, question6, question7, question8
+)
+from app.routes import bp
+
 @bp.route('/trivia', methods=['GET', 'POST'])
 @login_required
 def trivia_game():
@@ -175,18 +189,23 @@ def trivia_game():
     if request.method == 'POST':
         user_input = request.form.get('answer', '').strip()
         question_id = request.form.get('question_id')
+        correct_answer = request.form.get('correct_answer', '').strip()
+
+        if not correct_answer or not question_id:
+            flash("Missing form data.", "danger")
+            return redirect(url_for('routes.trivia_game'))
 
         check_func = check_answer_map.get(question_id)
-        if check_func:
-            message = check_func(user_input)
-        else:
-            message = "Invalid question."
+        if not check_func:
+            flash("Invalid question.", "danger")
+            return redirect(url_for('routes.trivia_game'))
 
+        message = check_func(user_input, correct_answer)
         flash(message)
         return redirect(url_for('routes.trivia_game'))
 
     # GET request: fetch a valid question
-    for _ in range(10):  # avoid infinite loop
+    for _ in range(10):  # retry a few times in case of invalid/missing questions
         question = db.session.query(TriviaQuestion).order_by(func.random()).first()
 
         if not question:
@@ -219,11 +238,12 @@ def trivia_game():
     return render_template(
         'trivia.html',
         question_text=question_text,
-        correct_answer=correct_answer,
+        correct_answer=correct_answer,  # passed into form as hidden input
         incorrect_answers=incorrect_answers,
         all_answers=all_answers,
         question_id=question.question_id
     )
+
 @bp.route('/jeopardy')
 @login_required
 def jeopardy_loading():

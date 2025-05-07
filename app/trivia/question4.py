@@ -83,7 +83,7 @@ def generate_question4(question_text):
     return trivia_question, None
 
 
-def check_answer(user_input):
+def check_answer(user_input, correct_answer):
     if not user_input:
         return "You must enter a player's name."
 
@@ -127,7 +127,7 @@ def check_answer(user_input):
     }).fetchone()
     if not award_check:
         current_user.question_wrong()
-        return f"Incorrect. This player did not win the {award_name} award."
+        return f"Incorrect. {correct_answer.title()} played for the {team_name} and won the {award_name}, not {first_name.title()} {last_name.title()}."
 
     # Step 4: Verify player played for the team
     team_check_query = text('''
@@ -141,8 +141,8 @@ def check_answer(user_input):
     }).fetchone()
     if not team_check:
         current_user.question_wrong()
-        return f"Incorrect. This player did not play for the {team_name}."
+        return f"Incorrect. {correct_answer.title()} played for the {team_name} and won the {award_name}, not {first_name.title()} {last_name.title()}."
 
     # Step 5: If both match, correct
     current_user.question_right()
-    return f"Correct! This player won the {award_name} while playing for {team_name}."
+    return f"Correct! {first_name.title()} {last_name.title()} won the {award_name} while playing for {team_name}."
