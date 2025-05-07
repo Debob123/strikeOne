@@ -1,6 +1,8 @@
 # CSI3335 Project Virtual Environment
 
-This repository provides a virtual environment setup with specified dependencies for student projects in the CSI3335 course. **Please use Python 3.10 and above**
+### Python Version:
+
+- Make sure the python version is either 3.12 or 3.13.1
 
 ## Description
 
@@ -43,9 +45,12 @@ source project_env/bin/activate
 pip install -r requirements.txt
 ```
 
-5. **Set the FLASK_APP environment variable:
+5. **Set the FLASK_APP environment variable(This will be the sql dump):
 ```bash
 export FLASK_APP=run.py
+
+if this doesnt work then run 'python run.py' in the command line while mariadb is running.
+Also make sure the baseball database is present in your maraiadb
 ```
 
 6. **Running the flask development server
@@ -59,7 +64,7 @@ flask run
    - The information is preloaded into the database so you DO NOT need to register the admin account in the registration page. To log in as an admin, enter the admin username and password into the login page. These can be found below
      
    - Username: 'Admin'
-   - Password: 'Password'
+   - Password: 'adminpassword'
      
 
 2. **Divisions Extended**
